@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+
+<h1>在地图上标注位置</h1>
+
+<% line.stops.forEach(function(stop, index) { %>
+<li>站点序号 : <%= index %></li>
+<li>站点名 : <%= stop.stopName%></li>
+<% }) %>
+
+

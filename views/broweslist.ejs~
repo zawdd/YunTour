@@ -1,0 +1,6 @@
+<% lines.forEach(function(line, index) { %>
+<li>路线名称<%= line.lineName %></li>
+<li>路线简介<%= line.lineSummary %></li>
+<li>超级链接 http://localhost:3000/browesdetail/<%= line._id %></li>
+<% }) %>
+

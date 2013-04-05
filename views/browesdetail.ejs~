@@ -1,0 +1,39 @@
+<h1>路线详细信息</h1>
+
+  <li>lineName : <%= line.lineName%></li>
+  <li>coverThumbnail : <%= line.coverThumbnail%></li>
+  <li>lineSummary : <%= line.lineSummary%></li>
+  <li>stops : <%= line.stops%></li>
+  <li>baseDir : <%= line.baseDir%></li>
+  <li>mapType : <%= line.mapType%></li>
+  <li>mapAddress : <%= line.mapAddress%></li>
+  <li>locate : <%= line.locate%></li>
+  <li>language : <%= line.language%></li>
+  <li>lineLength : <%= line.lineLength%></li>
+  <li>duration : <%= line.duration%></li>
+  <li>topics : <%= line.topics%></li>
+  <li>price : <%= line.price%></li>
+  <li>author : <%= line.author%></li>
+  <li>keyWords : <%= line.keyWords%></li>
+  <li>traffics : <%= line.traffics%></li>
+  <li>cautions : <%= line.cautions%></li>
+  <li>lineLinks : <%= line.lineLinks%></li>
+  <li>lineVedios : <%= line.lineVedios%></li>
+  <li>totalScore : <%= line.totalScore%></li>
+  <li>totalPeople : <%= line.totalPeople%></li>
+  <li>signUpDate : <%= line.signUpDate%></li>
+
+  <li>作者姓名: <%= user.userName %></li>
+  <li>作者简介: <%= user.userShort %></li>
+  <li>作者类型: <%= user.authorType %></li>
+  <li>作者照片: <%= user.baseDir %>/photo.jpg</li>
+
+<% line.stops.forEach(function(stop, index) { %>
+<li>站点名 : <%= stop.stopName%></li>
+<li>站点简介 : <%= stop.stopDes%></li>
+<li>站点音频 : <%= stop.stopAudio%></li>
+<li>站点位置 : <%= stop.locate%></li
+<% }) %>
+
+<a href="http://localhost:3000/createstops/<%= lineid %>">创建站点</a>
+<a href="http://localhost:3000/signmap/<%= lineid %>">地图标注</a> 

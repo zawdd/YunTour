@@ -1,0 +1,5 @@
+module.exports = {
+  cookieSecret : 'YunTour',
+  db : 'yuntour',
+  host : 'localhost',
+};
