@@ -176,7 +176,6 @@ Line.update = function update(lineid, line, callback){
 
 //按照某条件获得全部满足条件的路线
 //如:位置，主题
-
 Line.findByTopics = function findByTopics (key, callback){
  mongodb.open(function(err, db){
     if (err) {
@@ -199,6 +198,34 @@ Line.findByTopics = function findByTopics (key, callback){
 	  console.log(doc._id.toString());
 	  //var line = new Line(doc);
 	  //lines.push(line);
+	  lines.push(doc);//这里把每个图片的id也返回，用于接下来查找这一id对应的路径
+	});
+	callback(null, lines);
+
+      });
+    });
+  });
+};
+
+Line.findByLocation = function findByLocation (key, callback){
+ mongodb.open(function(err, db){
+    if (err) {
+      return callback(err);
+    }
+    db.collection('line', function(err, collection){
+      if (err) {
+	mongodb.close();
+	return callback(err);
+      }
+      collection.ensureIndex({locate : "2d"});
+      collection.find({locate : {$near : key}}).sort({signUpDate : 1}).toArray(function(err, docs){
+        mongodb.close();
+	if (err) {
+	  callback(err, null);
+	}
+        var lines = [];
+	docs.forEach(function(doc, index){
+	  console.log(doc._id.toString());
 	  lines.push(doc);//这里把每个图片的id也返回，用于接下来查找这一id对应的路径
 	});
 	callback(null, lines);

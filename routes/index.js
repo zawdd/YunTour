@@ -251,7 +251,8 @@ exports.browesDetail = function browesDetail(req, res){
 //目前无法显示作者的信息，需要进入详细页面才能显示
 exports.browesList = function browesList(req, res){
   var key = '人文';
-
+//  var key = [10, 20];
+//  Line.findByLocation(key, function(err, lines){
   Line.findByTopics(key, function(err, lines){
     if (err) {
       var lines = [];

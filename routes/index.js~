@@ -250,9 +250,10 @@ exports.browesDetail = function browesDetail(req, res){
 //显示路线的列表
 //目前无法显示作者的信息，需要进入详细页面才能显示
 exports.browesList = function browesList(req, res){
-  var key = '人文';
-
-  Line.findByTopics(key, function(err, lines){
+//  var key = '人文';
+  var key = [10, 20];
+  Line.findByLocation(key, function(err, lines){
+//  Line.findByTopics(key, function(err, lines){
     if (err) {
       var lines = [];
     }
@@ -346,7 +347,8 @@ exports.doSignMap = function doSignMap(req, res){
       } else {
         req.flash('success', '标注成功');
         res.redirect("/browesdetail/"+req.params.lineid);
-     }
+      }
+
     });
   });
 };

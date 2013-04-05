@@ -152,9 +152,9 @@ Line.insertStop = function insertStop(lineid, stop, callback){
     });
   });
 };
-
+//根据lineid 更新line的信息，比如
 //根据地图标注更新线路中所有的坐标信息
-Line.updateLocation = function updateLocation(lineid, line, callback){
+Line.update = function update(lineid, line, callback){
   mongodb.open(function(err, db){
     if(err) {
       callback(err);
@@ -176,7 +176,6 @@ Line.updateLocation = function updateLocation(lineid, line, callback){
 
 //按照某条件获得全部满足条件的路线
 //如:位置，主题
-
 Line.findByTopics = function findByTopics (key, callback){
  mongodb.open(function(err, db){
     if (err) {
