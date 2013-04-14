@@ -16,6 +16,9 @@ function Line(line) {
   this.topics = line.topics;
   this.price = line.price;
   this.author = line.author;
+  this.authorEmail = line.authorEmail;
+  this.authorBio = line.authorBio;
+  this.authorType = line.authorType;
   this.keyWords = line.keyWords;
   this.traffics = line.traffics;
   this.cautions = line.cautions;
@@ -58,6 +61,9 @@ Line.prototype.create = function create(callback) {
     topics : this.topics,
     price : this.price,
     author : this.author,
+    authorEmail : this.authorEmail,
+    authorBio : this.authorBio,
+    authorType : this.authorType,
     keyWords : this.keyWords,
     traffics : this.traffics,
     cautions : this.cautions,
@@ -198,6 +204,34 @@ Line.findByTopics = function findByTopics (key, callback){
 	  console.log(doc._id.toString());
 	  //var line = new Line(doc);
 	  //lines.push(line);
+	  lines.push(doc);//这里把每个图片的id也返回，用于接下来查找这一id对应的路径
+	});
+	callback(null, lines);
+
+      });
+    });
+  });
+};
+
+Line.findByLocation = function findByLocation (key, callback){
+ mongodb.open(function(err, db){
+    if (err) {
+      return callback(err);
+    }
+    db.collection('line', function(err, collection){
+      if (err) {
+	mongodb.close();
+	return callback(err);
+      }
+      collection.ensureIndex({locate : "2d"});
+      collection.find({locate : {$near : key}}).sort({signUpDate : 1}).toArray(function(err, docs){
+        mongodb.close();
+	if (err) {
+	  callback(err, null);
+	}
+        var lines = [];
+	docs.forEach(function(doc, index){
+	  console.log(doc._id.toString());
 	  lines.push(doc);//这里把每个图片的id也返回，用于接下来查找这一id对应的路径
 	});
 	callback(null, lines);

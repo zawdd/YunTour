@@ -206,7 +206,10 @@ exports.doCreateLine = function(req, res) {
     duration : req.body.duration,
     topics : req.body.topics,
     price : req.body.price,
-    author : req.session.user.userEmail,
+    authorEmail : req.session.user.userEmail,
+    author : req.session.user.userName, 
+    authorBio : req.session.user.userShort,
+    authorType :  req.session.user.authorType,
     keyWords : req.body.keywords,
     traffics : req.body.traffics,
     cautions : "",
@@ -351,4 +354,41 @@ exports.doSignMap = function doSignMap(req, res){
 
     });
   });
+};
+
+//Andorid test
+exports.androidTest = function androidTest(req, res){
+  /*console.log(req.body);
+  lineid = '515e4f2c477d6e8405000002';
+  res.contentType('json');
+  //res.send(JSON.stringify({statu : "success" }));
+  //res.end(JSON.stringify({statu : "success" }));
+  
+  Line.get(lineid, function(err, line){
+    console.log(line.lineName);
+    res.contentType('json');
+    //res.send(JSON.stringify(line));
+    //res.json(line);
+    //res.send(JSON.stringify({status : "error" }));
+    //res.send("blablablablabla");
+    res.end(JSON.stringify(line), 'utf8');
+  });*/
+
+    var key = '人文';
+//  var key = [10, 20];
+//  Line.findByLocation(key, function(err, lines){
+  Line.findByTopics(key, function(err, lines){
+    if (err) {
+      var lines = [];
+    }
+    res.end(JSON.stringify(lines), 'utf8');
+  })
+ 
+};
+
+//url test
+exports.test = function test(req, res){
+  console.log(req.query.username);
+  console.log(req.query.nation);
+  res.end();
 };

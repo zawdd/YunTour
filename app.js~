@@ -41,8 +41,7 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-//app.get('/u/:user', routes.user);
-//
+
 app.get('/reg', routes.checkNotLogin);
 app.get('/reg', routes.reg);
 app.post('/reg', routes.checkNotLogin);
@@ -79,11 +78,13 @@ app.get('/createstops/:lineid', routes.createStops);
 app.post('/createstops/:lineid', routes.checkLogin);
 app.post('/createstops/:lineid', routes.doCreateStops);
 
-app.get('signmap/:lineid', routes.checkLogin);
-app.get('signmap/:lineid', routes.signMap);
+app.get('/signmap/:lineid', routes.checkLogin);
+app.get('/signmap/:lineid', routes.signMap);
 
-app.post('signmap/:lineid', routes.checkLogin);
-app.post('signmap/:lineid', routes.doSignMap);
+app.post('/signmap/:lineid', routes.checkLogin);
+app.post('/signmap/:lineid', routes.doSignMap);
+
+app.get('/androidtest', routes.androidTest);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
