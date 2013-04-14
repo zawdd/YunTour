@@ -189,6 +189,7 @@ exports.createLine = function(req, res) {
 
 };
 
+
 exports.doCreateLine = function(req, res) {
   //省略了输入合法性的判断
 
@@ -232,13 +233,66 @@ exports.doCreateLine = function(req, res) {
 
   });
 };
+exports.step1 = function(req, res) {
+  res.render('step1', {
+    title: "创建一条新的线路",
+    user : req.session.user,
+  });
+}
+
+exports.doStep1 = function(req, res) {
+  //省略了输入合法性的判断
+  console.log(req.body.keyWords);
+  console.log(req.body.lineName);
+  console.log(req.body.lineSummary);
+  console.log(req.body.lineAddress);
+  var newLine = new Line({
+    lineName : req.body.lineName,
+    coverThumbnail : "",
+    lineSummary : req.body.lineSummary,
+    stops : [],
+    baseDir : "",
+    mapType : "googlemap",
+    mapAddress : req.body.lineAddress,
+    locate : [],
+    language : "中文",
+    lineLength : 0,
+    duration : 0,
+    topics : ['人文', '历史', '自然'],
+    price : 0,
+    authorEmail : req.session.user.userEmail,
+    author : req.session.user.userName, 
+    authorBio : req.session.user.userShort,
+    authorType :  req.session.user.authorType,
+    keyWords : req.body.keyWords,
+    traffics : "",
+    cautions : "",
+    lineLinks : "",
+    lineVedios : "",
+    totalScore : 0,
+    totalPeople : 0,
+    signUpDate : new Date()
+  }); 
+
+  newLine.create(function(err){
+    if (err) {
+      req.flash('error', err);
+      return res.redirect('/step1');
+      console.log("插入失败");
+    } else {
+      req.flash('success', '创建成功');
+      res.redirect("/");
+    }
+
+  });
+};
 
 //浏览一条线路的详细信息
-exports.browesDetail = function browesDetail(req, res){
+exports.browseDetail = function browseDetail(req, res){
   console.log(req.params.lineid);
   Line.get(req.params.lineid, function(err, line){
     User.get(line.author, function(err, user){
-      res.render('browesdetail', {
+      res.render('browsedetail', {
         title : "浏览详细线路信息",
         line : line,
         user : user,
@@ -251,16 +305,15 @@ exports.browesDetail = function browesDetail(req, res){
 };
 
 //显示路线的列表
-//目前无法显示作者的信息，需要进入详细页面才能显示
-exports.browesList = function browesList(req, res){
+exports.browseList = function browseList(req, res){
   var key = '人文';
 //  var key = [10, 20];
 //  Line.findByLocation(key, function(err, lines){
-  Line.findByTopics(key, function(err, lines){
+  Line.findByTopics(key,0,25, function(err, lines){
     if (err) {
       var lines = [];
     }
-    res.render('broweslist',{
+    res.render('browselist',{
       title : "路线列表",
       lines : lines,
       //users : users,
@@ -353,6 +406,78 @@ exports.doSignMap = function doSignMap(req, res){
       }
 
     });
+  });
+};
+//Android端
+//根据topic显示路线
+exports.browseByTopic = function browseByTopic(req, res){
+  var topic = req.query.topic;
+  var beg = req.query.beg;
+  var end = req.query.end;
+  Line.findByTopics(topic, beg, end, function(err, lines){
+    if (err) {
+      var lines = [];
+    }
+    res.end(JSON.stringify(lines), 'utf8'); 
+  });
+};
+//根据mapAddress显示路线
+exports.browseByAddress = function browseByAddress(req, res){
+  var mapaddress = req.query.place;
+  var beg = req.query.beg;
+  var end = req.query.end;
+  Line.findByAddress(mapaddress, beg, end, function(err, lines){
+    if (err) {
+      var lines = [];
+    }
+    res.end(JSON.stringify(lines), 'utf8'); 
+  });
+};
+//根据mapAddress和topic显示路线
+exports.browseByAddressTopic = function browseByAddressTopic(req, res){
+  var mapaddress = req.query.place;
+  var topic = req.query.topic;
+  var beg = req.query.beg;
+  var end = req.query.end;
+  Line.findByAddressTopic(mapaddress, topic, beg, end, function(err, lines){
+    if (err) {
+      var lines = [];
+    }
+    res.end(JSON.stringify(lines), 'utf8'); 
+  });
+};
+
+//根据位置坐标显示路线
+exports.browseByLocation = function browseByLocation(req, res){
+  var locations = [req.query.x, req.query.y];
+  var beg = req.query.beg;
+  var end = req.query.end;
+  Line.findByLocation(locations, beg, end, function(err, lines){
+    if (err) {
+      var lines = [];
+    }
+    res.end(JSON.stringify(lines), 'utf8'); 
+  });
+
+};
+
+//浏览一条线路的详细信息
+exports.browseByID = function browseByID(req, res){
+  Line.get(req.query.lineid, function(err, line){
+    if (err) {
+      var line = null;
+    }
+    res.end(JSON.stringify(line), 'utf8');
+  });    
+};
+//根据用户email显示路线
+exports.browseByEmail = function browseByEmail(req, res){
+  var authoremail = req.query.author;
+  Line.findByEmail(authoremail, function(err, lines){
+    if (err) {
+      var lines = [];
+    }
+    res.end(JSON.stringify(lines), 'utf8'); 
   });
 };
 

@@ -18,6 +18,7 @@ var app = express();
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
+//  app.set('views', __dirname + '/UI');
   app.set('view engine', 'ejs');
 //  app.use(partials());
   app.use(express.favicon());
@@ -69,8 +70,8 @@ app.get('/createline', routes.createLine);
 app.post('/createline', routes.checkLogin);
 app.post('/createline', routes.doCreateLine);
 
-app.get('/browesdetail/:lineid', routes.browesDetail);
-app.get('/broweslist', routes.browesList);
+app.get('/browesdetail/:lineid', routes.browseDetail);
+app.get('/broweslist', routes.browseList);
 
 app.get('/createstops/:lineid', routes.checkLogin);
 app.get('/createstops/:lineid', routes.createStops);
@@ -83,9 +84,18 @@ app.get('/signmap/:lineid', routes.signMap);
 
 app.post('/signmap/:lineid', routes.checkLogin);
 app.post('/signmap/:lineid', routes.doSignMap);
-
+//web
+app.get('/step1', routes.step1);
+app.post('/step1', routes.doStep1);
+//android
 app.get('/androidtest', routes.androidTest);
-app.get('/test', routes.test);
+app.get('/browsebyaddress', routes.test);
+
+app.get('/browsebytopic', routes.browseByTopic);
+app.get('/browsebyaddresstopic', routes.browseByAddressTopic);
+app.get('/browsebylocation', routes.browseByLocation);
+app.get('/browsebyid', routes.browseByID);
+app.get('/browsebyemail', routes.browseByEmail);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

@@ -182,7 +182,7 @@ Line.update = function update(lineid, line, callback){
 
 //按照某条件获得全部满足条件的路线
 //如:位置，主题
-Line.findByTopics = function findByTopics (key, callback){
+Line.findByTopics = function findByTopics (key, beg, end, callback){
  mongodb.open(function(err, db){
     if (err) {
       return callback(err);
@@ -194,7 +194,7 @@ Line.findByTopics = function findByTopics (key, callback){
 	return callback(err);
       }
 
-      collection.find({topics : key}).sort({signUpDate : 1}).toArray(function(err, docs){
+      collection.find({topics : key}).limit(end-beg).skip(beg).sort({createDate : 1}).toArray(function(err, docs){
         mongodb.close();
 	if (err) {
 	  callback(err, null);
@@ -212,8 +212,8 @@ Line.findByTopics = function findByTopics (key, callback){
     });
   });
 };
-
-Line.findByLocation = function findByLocation (key, callback){
+//根据位置返回beg到end的路线
+Line.findByLocation = function findByLocation (key, beg, end,callback){
  mongodb.open(function(err, db){
     if (err) {
       return callback(err);
@@ -224,7 +224,7 @@ Line.findByLocation = function findByLocation (key, callback){
 	return callback(err);
       }
       collection.ensureIndex({locate : "2d"});
-      collection.find({locate : {$near : key}}).sort({signUpDate : 1}).toArray(function(err, docs){
+      collection.find({locate : {$near : key}}).limit(end-beg).skip(beg).sort({signUpDate : 1}).toArray(function(err, docs){
         mongodb.close();
 	if (err) {
 	  callback(err, null);
@@ -233,6 +233,94 @@ Line.findByLocation = function findByLocation (key, callback){
 	docs.forEach(function(doc, index){
 	  console.log(doc._id.toString());
 	  lines.push(doc);//这里把每个图片的id也返回，用于接下来查找这一id对应的路径
+	});
+	callback(null, lines);
+
+      });
+    });
+  });
+};
+
+//根据用户的Email显示所有该用户创建的线路
+Line.findByEmail = function findByEmail (key, callback){
+ mongodb.open(function(err, db){
+    if (err) {
+      return callback(err);
+    }
+
+    db.collection('line', function(err, collection){
+      if (err) {
+	mongodb.close();
+	return callback(err);
+      }
+
+      collection.find({authorEmail : key}).sort({createDate : 1}).toArray(function(err, docs){
+        mongodb.close();
+	if (err) {
+	  callback(err, null);
+	}
+        var lines = [];
+	docs.forEach(function(doc, index){
+	  console.log(doc._id.toString());
+	  lines.push(doc);//这里把每个图片的id也返回，用于接下来查找这一id对应的路径
+	});
+	callback(null, lines);
+
+      });
+    });
+  });
+};
+//根据mapAddress 返回列表
+Line.findByAddress = function findByAddress (key, beg, end, callback){
+ mongodb.open(function(err, db){
+    if (err) {
+      return callback(err);
+    }
+
+    db.collection('line', function(err, collection){
+      if (err) {
+	mongodb.close();
+	return callback(err);
+      }
+
+      collection.find({mapAddress : key}).limit(end-beg).skip(beg).sort({createDate : 1}).toArray(function(err, docs){
+        mongodb.close();
+	if (err) {
+	  callback(err, null);
+	}
+        var lines = [];
+	docs.forEach(function(doc, index){
+	  console.log(doc._id.toString());
+	  lines.push(doc);
+	});
+	callback(null, lines);
+
+      });
+    });
+  });
+};
+//根据mapAddress和topic 返回列表
+Line.findByAddress = function findByAddress (address, topic, beg, end, callback){
+ mongodb.open(function(err, db){
+    if (err) {
+      return callback(err);
+    }
+
+    db.collection('line', function(err, collection){
+      if (err) {
+	mongodb.close();
+	return callback(err);
+      }
+
+      collection.find({mapAddress : address, topics : topic}).limit(end-beg).skip(beg).sort({createDate : 1}).toArray(function(err, docs){
+        mongodb.close();
+	if (err) {
+	  callback(err, null);
+	}
+        var lines = [];
+	docs.forEach(function(doc, index){
+	  console.log(doc._id.toString());
+	  lines.push(doc);
 	});
 	callback(null, lines);
 
