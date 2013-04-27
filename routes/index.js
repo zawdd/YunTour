@@ -33,11 +33,12 @@ exports.doReg = function(req, res){
     userName : "",
     password : req.body.password,
     userNation : "中国",
+    usserImage : "",
     accountType :  "free",
     tourCreate : [],
     takenSpace : 0,
     userLanguage : "中文",
-    userShort : "",
+    userShort : "",     
     baseDir : "",
     authorType : "LICENSEDGUIDE",
     signUpDate : new Date()
@@ -210,6 +211,7 @@ exports.doCreateLine = function(req, res) {
     authorEmail : req.session.user.userEmail,
     author : req.session.user.userName, 
     authorBio : req.session.user.userShort,
+    authorImage : req.session.user.userImage,
     authorType :  req.session.user.authorType,
     keyWords : req.body.keywords,
     traffics : req.body.traffics,
@@ -218,7 +220,7 @@ exports.doCreateLine = function(req, res) {
     lineVedios : "",
     totalScore : 0,
     totalPeople : 0,
-    signUpDate : new Date()
+    createDate : new Date()
   }); 
 
   newLine.create(function(err){
@@ -262,6 +264,7 @@ exports.doStep1 = function(req, res) {
     price : 0,
     authorEmail : req.session.user.userEmail,
     author : req.session.user.userName, 
+    authorImage : req.session.user.userImage,
     authorBio : req.session.user.userShort,
     authorType :  req.session.user.authorType,
     keyWords : req.body.keyWords,
@@ -271,7 +274,7 @@ exports.doStep1 = function(req, res) {
     lineVedios : "",
     totalScore : 0,
     totalPeople : 0,
-    signUpDate : new Date()
+    createDate : new Date()
   }); 
 
   newLine.create(function(err){
@@ -423,7 +426,7 @@ exports.browseByTopic = function browseByTopic(req, res){
 };
 //根据mapAddress显示路线
 exports.browseByAddress = function browseByAddress(req, res){
-  var mapaddress = req.query.place;
+  var mapaddress = req.query.address;
   var beg = req.query.beg;
   var end = req.query.end;
   Line.findByAddress(mapaddress, beg, end, function(err, lines){
@@ -435,7 +438,7 @@ exports.browseByAddress = function browseByAddress(req, res){
 };
 //根据mapAddress和topic显示路线
 exports.browseByAddressTopic = function browseByAddressTopic(req, res){
-  var mapaddress = req.query.place;
+  var mapaddress = req.query.address;
   var topic = req.query.topic;
   var beg = req.query.beg;
   var end = req.query.end;
@@ -474,6 +477,18 @@ exports.browseByID = function browseByID(req, res){
 exports.browseByEmail = function browseByEmail(req, res){
   var authoremail = req.query.author;
   Line.findByEmail(authoremail, function(err, lines){
+    if (err) {
+      var lines = [];
+    }
+    res.end(JSON.stringify(lines), 'utf8'); 
+  });
+};
+
+//根据时间顺序显示路线
+exports.browseAllByTime = function browseAllByTime(req, res){
+  var beg = req.query.beg;
+  var end = req.query.end;
+  Line.findAllByTime(beg, end, function(err, lines){
     if (err) {
       var lines = [];
     }

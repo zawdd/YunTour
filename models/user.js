@@ -6,6 +6,7 @@ function User(user) {
   this.userName = user.userName;
   this.password = user.password;
   this.userNation = user.userNation;//"中国";
+  this.userImage = user.userImage;
   this.accountType = user.accountType;//"free";
   this.tourCreate = user.tourCreate;//[];
   this.takenSpace = user.takenSpace;//0;
@@ -25,6 +26,7 @@ User.prototype.create = function create(callback) {
     userName : this.userName,
     password : this.password,
     userNation : this.userNation,
+    userImage : this.userImage,
     accountType : this.accountType,
     tourCreate : this.tourCreate,
     takenSpace : this.takenSpace,

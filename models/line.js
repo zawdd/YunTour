@@ -16,6 +16,7 @@ function Line(line) {
   this.topics = line.topics;
   this.price = line.price;
   this.author = line.author;
+  this.authorImage = line.authorImage;
   this.authorEmail = line.authorEmail;
   this.authorBio = line.authorBio;
   this.authorType = line.authorType;
@@ -26,7 +27,7 @@ function Line(line) {
   this.lineVedios = line.lineVedios;
   this.totalScore = line.totalScore;
   this.totalPeople = line.totalPeople;
-  this.signUpDate = line.signUpDate;
+  this.createDate = line.createDate;
 };
 
 function Stop(stop) {
@@ -61,6 +62,7 @@ Line.prototype.create = function create(callback) {
     topics : this.topics,
     price : this.price,
     author : this.author,
+    authorImage : this.authorImage,
     authorEmail : this.authorEmail,
     authorBio : this.authorBio,
     authorType : this.authorType,
@@ -71,7 +73,7 @@ Line.prototype.create = function create(callback) {
     lineVedios : this.lineVedios,
     totalScore : this.totalScore,
     totalPeople : this.totalPeople,
-    signUpDate : this.signUpDate,    
+    createDate : this.createDate,    
   };
 
   mongodb.open(function(err, db){
@@ -179,7 +181,33 @@ Line.update = function update(lineid, line, callback){
     });
   });
 };
+//根据时间顺序返回beg到end数目的路线
+Line.findAllByTime = function findAllByTime(beg, end, callback){
+  mongodb.open(function(err, db){
+    if (err) {
+      return callback(err);
+    }
+    db.collection('line', function(err, collection){
+      if (err) {
+	mongodb.close();
+	return callback(err);
+      }
+      collection.find().limit(end-beg).skip(beg).sort({createDate : 1}).toArray(function(err, docs){
+        mongodb.close();
+	if (err) {
+	  callback(err, null);
+	}
+        var lines = [];
+	docs.forEach(function(doc, index){
+	  console.log(doc._id.toString());
+	  lines.push(doc);
+	});
+	callback(null, lines);
 
+      });
+    });
+  });
+};
 //按照某条件获得全部满足条件的路线
 //如:位置，主题
 Line.findByTopics = function findByTopics (key, beg, end, callback){
@@ -224,7 +252,7 @@ Line.findByLocation = function findByLocation (key, beg, end,callback){
 	return callback(err);
       }
       collection.ensureIndex({locate : "2d"});
-      collection.find({locate : {$near : key}}).limit(end-beg).skip(beg).sort({signUpDate : 1}).toArray(function(err, docs){
+      collection.find({locate : {$near : key}}).limit(end-beg).skip(beg).sort({createDate : 1}).toArray(function(err, docs){
         mongodb.close();
 	if (err) {
 	  callback(err, null);

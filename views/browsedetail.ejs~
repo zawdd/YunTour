@@ -27,7 +27,7 @@
   <li>作者简介: <%= line.authorBio %></li>
   <li>作者类型: <%= line.authorType %></li>
   <li>作者邮箱: <%= line.authorEmail %></li>
-  <li>作者照片: <%= line.baseDir %>/photo.jpg</li>
+
 
 <% line.stops.forEach(function(stop, index) { %>
 <li>站点名 : <%= stop.stopName%></li>

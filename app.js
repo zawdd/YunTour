@@ -89,13 +89,14 @@ app.get('/step1', routes.step1);
 app.post('/step1', routes.doStep1);
 //android
 app.get('/androidtest', routes.androidTest);
-app.get('/browsebyaddress', routes.test);
 
+app.get('/browsebyaddress', routes.browseByAddress);
 app.get('/browsebytopic', routes.browseByTopic);
 app.get('/browsebyaddresstopic', routes.browseByAddressTopic);
 app.get('/browsebylocation', routes.browseByLocation);
 app.get('/browsebyid', routes.browseByID);
 app.get('/browsebyemail', routes.browseByEmail);
+app.get('/browseallbytime', routes.browseAllByTime);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
