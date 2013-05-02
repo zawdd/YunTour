@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>step1</title>
+    <meta name="description" content="GuidiGO Studio - Create and publish tours.">
+    <meta name="viewport" content="width=device-width">
+    <link href="./stylesheets/main.css" rel="stylesheet">
+    <link href="./stylesheets/step3-css.css" rel="stylesheet">
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="./javascript/jquery.min.js"></script>
+    <script src="./javascript/jquery.js"></script>
+    <script src="./javascript/jqueryui.js"></script>
+	<script src="./javascripts/jquery.placeholder.min.js"></script>
+    <script src="./javascripts/jquery.uploadify.min.js" type="text/javascript"></script>
+    <script src="./javascripts/jquery.jscrollpane.min.js"></script>
+    <script src="/Scripts/libs/jquery.maskedinput-1.3.min.js" type="text/javascript"></script>
+    <script src="./javascripts/step4.js"></script>
+    
+	<script type="text/javascript">
+        var baseUrl = "/";            
+    </script>
+    
+</head>
+<body>
+<header id="home-header">
+    <div id="header-content">
+        <h1>
+        <a href="/">
+        	<img src="/images/yunyou.png" style="width: 168px"></a>
+        </h1>
+		<div id="sub-nav">
+			<ul class="subnav-links clearfix">            
+				<li>
+					<a href="/signin" id="signin-nav-btn">登录</a>
+				</li>
+				<li>
+					<a href="/singup" id="signup-nav-btn">注册</a>
+				</li>   
+			</ul>
+		</div>            
+    </div>
+</header>
+<!--！ end header //++++++++++++++++++++++++++++++++++++-->
+
+
+<div id="subheader-steps">
+    <div id="page-title">
+        <ul>
+            <li><a href="/create">创建路线</a></li>
+            <li><%= title %></li>
+        </ul>
+    </div>
+    <div id="subheader-steps-inside">
+        <ul class="steps-tabs clearfix">
+            <li class="step-description">
+                <a href="/step1">
+                    <span>
+                        <em>第一步</em>
+                        <strong>线路概况</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-tourstops">
+                <a href="/step2">
+                    <span>
+                        <em>第二步</em>
+                        <strong>第n站点</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-map stop-dependant step-active">
+                <a href="/step3">
+                    <span>
+                        <em>第三步</em>
+                        <strong>地图设置</strong>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--！ end subheader //++++++++++++++++++++++++++++++++++++-->
+
+
+<div id="main" class="step-container">
+	<h2 class="steps-title">3. 地图</h2>
+	<div class="steps-desc">根据左边站点选择地图位置，只要点一点，旅程更精彩</div>
+	<input id="EncryptTourID" name="EncryptTourID" type="hidden" value="" />
+	<div class="stepmap-big clearfix">
+        <div class="stepmap-aside" style="margin-top: 0px;">
+            <div class="stepmap-list-container" style="overflow: hidden; padding: 0px; width: 270px;">
+                
+            <div class="jspContainer" style="width: 270px; height: 43px;">
+            <div class="jspPane" style="padding: 0px; top: 0px; width: 270px;">
+            <ul class="stepmap-list ui-sortable" id="stop-container">
+            <li id="XN6pQgMdrV0">
+            <a href="http://studio.guidigo.com/Tour/Map/iVrsCPFXsHU#">
+            <span class="clearfix"><b>1</b> <em>北京</em></span></a></li>
+            </ul></div></div></div>
+            <a href="" class="g-map-reset  reset-itin">Route reset</a>
+
+        </div>
+        <div class="stepmap-content">
+            <div class="stepmap-gmap">
+                <div id="map-canvas" style="width: 650px; height: 570px; position: relative; background-color: rgb(229, 227, 223); overflow: hidden; -webkit-transform: translateZ(0);">
+            	</div>
+            </div>
+        </div>
+    </div>
+	<div class="stepmap-big clearfix">
+    <div class="stepmap-aside">
+        <div class="stepmap-list-container" style="overflow-x: hidden">
+            <ul class="stepmap-list" id="stop-container">
+				
+            </ul>
+        </div>
+        
+        <!--<div class="stepmap-list-container" style="overflow: hidden; width: 270px;">
+        <div class="jspContainer" style="width: 270px; height: 43px;">
+        <div class="jspPane" style="padding: 0px; top: 0px; width: 270px;">
+        <ul class="stepmap-list ui-sortable" id="stop-container">
+        	<li id="XN6pQgMdrV0"><a href="#"><span class="clearfix"><b>1</b> 
+        		<em>北京</em>
+        	</span></a></li></ul></div></div></div>-->
+        	
+        <a href="javascript:void(0);" class="g-map-reset  reset-itin">重设路线</a>
+    </div>
+    <div class="stepmap-content">
+        <div class="stepmap-gmap">
+            <div id="map-canvas" style="width: 650px; height: 570px">
+            </div>
+        </div>
+    </div>
+	</div>
+    <div class="stepmap-address clearfix">
+        <label for="step-address">
+            Place or Address</label><span id="OrderStop"></span>
+        <div class="inactive-field" id="StopLocation" style="width: 635px">
+        </div>
+    </div>
+</div>
+<!--！ end step-container //++++++++++++++++++++++++++++++++++++-->	
+	
+<footer>
+    <div id="footer-inside">
+        <a class="f-exit" href="/browse-tours">退出</a>
+        <a  class="f-del" href="javascript:void(0);">删除</a>
+        <p class="back-next">
+            <a href="javascript:void(0);" class="large-button" id="footerbtn-discardchange" style="display: block">
+            	<span>丢弃</span></a> 
+            <a href="javascript:void(0);" class="large-button-action" id="footerbtn-savechange" style="display: block">
+            	<span>保存</span></a>
+        <a href="/step2" class="large-button-action large-button-action-next" style="display: none"><span>完成</span></a>
+        </p>
+    </div>
+</footer>
+</body>
+</html>

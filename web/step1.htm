@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)http://studio.yuntour.com/Tour/Index/iVrsCPFXsHU -->
+<html class="no-js" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width">
+    <link href="./stylesheets/main.css" rel="stylesheet">
+    <link href="./stylesheets/step1-css.css" rel="stylesheet">
+    <link href="./stylesheets/uploadify.css" rel="stylesheet">
+
+    <script src="./javascripts/jquery.min.js"></script>
+    <script src="./javascripts/libs.js"></script>
+    <style type="text/css">input.styled { display: none; } select.styled { position: relative; width: 190px; opacity: 0; filter: alpha(opacity=0); z-index: 5; } .disabled { opacity: 0.5; filter: alpha(opacity=50); }</style>
+	
+    <script src="./javascripts/jquery.placeholder.min.js"></script>
+    <script src="./javascripts/jquery.uploadify.min.js" type="text/javascript"></script>
+    <script src="./javascripts/jquery.maskedinput-1.3.min.js" type="text/javascript"></script>
+    <script src="./javascripts/jquery.jscrollpane.min.js"></script>
+	<script src="./javascripts/step1.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var baseUrl = "/";
+        var userID = "<%= user %>";
+        
+        //当input-changed为0,变footer
+        var toggleFooterButton = function () {
+            if ($(".input-changed").length == 0) {
+                $("#footerbtn-savechange, #footerbtn-discardchange").hide();
+                $("#footer-inside .large-button-action-next").show();
+            } else {
+                $("#footerbtn-savechange, #footerbtn-discardchange").show();
+                $("#footer-inside .large-button-action-next").hide();
+            }
+        }
+        
+        //form提交函数
+        var formHandler = function (e) {
+            var $form = $(this);
+
+            // We check if jQuery.validator exists on the form
+            
+            if ($(".td-error").length == 0) {  //!$form.valid || $form.valid()) {
+                $.post($form.attr('action'), $form.serializeArray())
+                .done(function (json) {
+                    json = json || {};
+                    hideLoading();
+                    // In case of success, we redirect to the provided URL or the same page.
+                    if (json.success) {
+                        if (json.redirect) {
+                            location = json.redirect || location.href;
+                        }
+                        info($form.data("successmessage"));
+                        $(".input-changed").removeClass("input-changed");
+                        initTrackChange();
+                    } else if (json.errors) {
+                        var items = $.map(json.errors, function (error) {
+                            return error + '<br />';
+                        }).join('');
+
+
+                        alert(items);
+                    }
+                }).error(function () {
+                    alert("erreur");
+                    hideLoading();
+                });
+            } else {
+                alert("请检查输入是否正确", "Error");
+
+            }
+            // Prevent the normal behavior since we opened the dialog
+            e.preventDefault();
+        }
+
+
+		//ready函数
+        $(function () {
+            $('input[placeholder], textarea[placeholder]').placeholder();
+            initTrackChange();						//当数据变便会添加input-changed
+            $("#tour-form").submit(formHandler);	//通过formHandler函数提交
+            
+            $('#file_upload').uploadify({
+                'swf' : '/uploadify.swf',
+                'uploader' : '/uploadhandler',
+                // Your options here
+                'fileTypeExts' : '*.gif; *.jpg; *.png',
+                'buttonText' : '请选择图片',
+                'removeCompleted' : false,
+                'multi' : true
+            });
+            
+            //丢弃数据，从data中找回
+            $("#footerbtn-discardchange").click(function (e) {
+                $(window).unbind("beforeunload");
+                $(".input-changed").each(function (index) {
+                    $(this).val($(this).data("initval"));
+                    $(this).removeClass("input-changed");
+                });
+                
+                $("#keyWords").importTags($("#keyWords").data("initval"));	//keyword later
+
+				//cover change
+                var coverPath =$("#Cover").val();	
+                $("#cover-img").attr("src", coverPath);
+
+				//sorttable change
+                $("#sortable2 li").each(function () {
+                    $(this).remove();
+                    $("#sortable1").append(this);
+                });
+                var topics = $("#topics").val().split(",");
+                for (i = 0; i < topics.length; i++) {
+                    if (topics[i]) {
+                        var a = $("#sortable1").find("#" + topics[i]);
+                        a.remove();
+                        $("#sortable2").append(a);
+                    }
+                }
+
+                toggleFooterButton();
+                e.preventDefault();
+            });
+            
+            //保存数据
+            $("#footerbtn-savechange").bind("click", function (e) {
+                $(window).unbind('beforeunload');
+                //$("#GoNext").val("false");
+                $('#tour-form').trigger('submit');
+                $(".input-changed").removeClass("input-changed");
+                if($(".td-error").length == 0) {
+                	$(".large-next-disabled").removeClass("large-next-disabled");
+                }
+                toggleFooterButton();
+                e.preventDefault();
+            });
+            
+            //任何一个f-exit按钮
+            $("#footer-inside .f-exit").each(function (index, item) {
+                var redirection = $(item).attr("href");
+                $(item).attr("href", "");
+                $(item).click(function (e) {
+                    if ($(".input-changed").length == 0) {
+                        location = redirection;
+                    } else {
+                    }
+                    e.preventDefault();
+                });
+            });
+            
+            $(".f-del").bind("click", function () {
+			    confirm("你真的要删除吗?", "Confirmation", function () {
+	                tours = [];
+	                tours.push($("#EncryptTourID").val());
+	                //showLoading(strToursDeleteLoading);
+	                $.ajax({
+	                    type: "POST",
+	                    url: baseUrl + "Tour/Delete",
+	                    traditional: true,
+	                    data: { 'listTour': tours },
+	                    success: function (result) {
+	                        $(window).unbind('beforeunload');
+	                        location.href = "/";
+	                    },
+	                    error: function () {
+	                        info("Unexpected error");
+	                        hideLoading();
+	                    }
+	                });
+	            });
+	        });
+            
+            //如果是创建新线路，传入lineId=0
+            if ($("#lineId").val() == 0) {
+                $("#footer-inside .large-button-action-next").addClass("large-next-disabled");
+                $("#footer-inside .large-button-action-next")
+                    .attr("disabled", "disabled")
+                    .click(function (e) {
+                        e.preventDefault();
+                        return false;
+                    }).attr("title", "Please fill in all the mandatory fields before going to the next step.")
+                    .qtip({
+                        content: {
+                            attr: 'title'
+                        },
+                        position: {
+                            my: 'bottom left',  // Position my top left...
+                            at: 'top left', // at the bottom right of...
+                            adjust: {
+                                x: 50
+                            }
+                        },
+                        show: {
+                            delay: 0
+                        },
+                        events: {
+                            render: function (event, api) {
+                                // Grab the tip element
+                                var elem = api.elements.tip;
+                            }
+                        },
+                        style: {
+                            tip: {
+                                corner: 'bottom left',
+                                mimic: 'bottom center',
+                                offset: 20, // Give it 5px offset from the side of the tooltip
+                                width: 11,
+                                height: 7
+                            }
+                        }
+                    });
+            }
+        });
+    </script>
+    
+    
+    <script type="text/javascript">
+        var strMessageConfirmProgressLost = "所有进度即将失去，你确定？";
+        var strMessageWarningChangePrice = "";
+        var strValidationMaxLength = "{1} 最大字符";;
+    </script>
+    <script type="text/javascript">
+        $.validator.setDefaults({
+            ignore: '.template, .ignore-valid',
+            highlight: function (element, errorClass) {
+                $elt = $(element);
+                if (!$elt.data("val-mustbechecked")) {
+                    if (element.tagName == "SELECT")
+                        $elt.parent().addClass("td-error");
+                    else {
+                        if ($elt.data("val-errorholder")) {
+                            $($elt.data("val-errorholder")).addClass("td-error");
+                        }
+                        else {
+                            $(element).addClass("td-error");
+                        }
+                    }
+                }
+            },
+            unhighlight: function (element, errorClass) {
+                $elt = $(element);
+                if ($(element).data("val") && !$(element).data("val-mustbechecked")) {
+                    if (element.tagName == "SELECT")
+                        $elt.parent().removeClass("td-error");
+                    else {
+                        if ($elt.data("val-errorholder")) {
+                            $($elt.data("val-errorholder")).removeClass("td-error");
+                        }
+                        else {
+                            $(element).removeClass("td-error");
+                        }
+                    }
+                }
+            }
+        });
+
+        $(function () {
+            $('#keyWords').tagsInput({
+                width: 'auto',
+                height: 'auto',
+                autocomplete_url: baseUrl + 'Tour/Tags/',
+                autocomplete: { minLength: 3 },
+                defaultText: 'add tag',
+                interactive: true,
+                minChars: 3,
+                onChange: function () {
+                    $('#keyWords').trigger("keyup");
+                    //$("#keyWords_tagsinput").data("jsp").reinitialize();
+                }
+            });
+
+            $("#keyWords_tag").focus(function () {
+                $('.tagsinput').addClass('tagsinput-active');
+            });
+            $("#keyWords_tag").blur(function () {
+                $('.tagsinput').removeClass('tagsinput-active');
+            });
+            $("#keyWords_tagsinput")
+                .addClass("has-suggestion")
+                .data("suggestion", "Try finding relevant keywords that are specific to your content. Type &quot;Enter&quot; to validate each tag.")
+                .elastic();
+            //$(".tag-container").jScrollPane();
+
+            
+            setUnloadWarning();
+
+            var validator = $("#tour-form").data("validator");
+            validator.settings.highlight = function (element, errorClass) {
+                $elt = $(element);
+                if (!$elt.data("val-mustbechecked")) {
+                    if (element.tagName == "SELECT")
+                        $elt.parent().addClass("td-error");
+                    else {
+                        if ($elt.data("val-errorholder")) {
+                            $($elt.data("val-errorholder")).addClass("td-error");
+                        }
+                        else {
+                            $(element).addClass("td-error");
+                        }
+                    }
+                }
+            };
+            validator.settings.unhighlight = function (element, errorClass) {
+                $elt = $(element);
+                if ($(element).data("val") && !$(element).data("val-mustbechecked")) {
+                    if (element.tagName == "SELECT")
+                        $elt.parent().removeClass("td-error");
+                    else {
+                        if ($elt.data("val-errorholder")) {
+                            $($elt.data("val-errorholder")).removeClass("td-error");
+                        }
+                        else {
+                            $(element).removeClass("td-error");
+                        }
+                    }
+                }
+            };
+
+
+        });
+    </script>
+    <script type="text/javascript">
+        var setUnloadWarning = function () {
+            $(window).bind('beforeunload', function () {
+                if ($(".input-changed").length > 0)
+                    return "You have unsaved changes";
+            });
+        }
+
+    </script>
+
+	
+     <!--<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+     <script type="text/javascript" src="./javascripts/jquery.uploadify-3.1.min.js"></script>-->
+     <script type="text/javascript">
+		$(function() {
+            
+        });
+     </script>
+	
+<script>window["_GOOG_TRANS_EXT_VER"] = "1";</script>
+<style type="text/css">iframe.dealply-toast { right: -99999px !important; }iframe.dealply-toast.fastestext-revealed { right: 0px !important; }</style>
+<script type="text/javascript" src="./javascripts/dojo.xd.js"></script>
+<script type="text/javascript" charset="utf-8" src="./javascripts/script.xd.js"></script>
+<script type="text/javascript" charset="utf-8" src="./javascripts/window.xd.js"></script>
+<script>window["_GOOG_TRANS_EXT_VER"] = "1";</script>
+</head>
+
+
+<body>
+<header id="home-header">
+    <div id="header-content">
+        <h1>
+        <a href="/">
+        	<img src="/images/yunyou.png" style="width: 168px"></a>
+        </h1>
+		<div id="sub-nav">
+			<ul class="subnav-links clearfix">
+				<li id="subnav-user">
+                    <a href="#" class="dropbtn">
+                        <em><span><%= user %></span></em>
+                    </a>
+                    <div class="subnav-dropdown" id="sn-user-dropdown">
+                        <span class="sn-user-email"></span>
+                        <ul class="sn-meta">                                    
+                            <li><a href="#" target="_blank">主页</a></li>
+                            <li><a href="#" target="_blank">设置</a></li>
+                        </ul>
+                        <ul>                                    
+                            <li><a href="#">退出帐号</a></li>
+                        </ul>
+                    </div>
+                </li>				
+			</ul>
+		</div>            
+    </div>
+</header>
+    
+<div id="subheader-steps">
+    <div id="page-title">
+        <ul>
+            <li><a href="/create">创建路线</a></li>
+            <li><%= title %></li>
+        </ul>
+    </div>
+    <div id="subheader-steps-inside">
+        <ul class="steps-tabs clearfix">
+            <li class="step-description step-active">
+                <a href="/step1">
+                    <span>
+                        <em>第一步</em>
+                        <strong>线路概况</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-tourstops">
+                <a href="/step2">
+                    <span>
+                        <em>第二步</em>
+                        <strong>第n站点</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-map stop-dependant">
+                <a href="/step3">
+                    <span>
+                        <em>第三步</em>
+                        <strong>地图设置</strong>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--！ end subheader //++++++++++++++++++++++++++++++++++++-->
+
+<form id="tour-form" method="post" action="/lineInfoHandler" data-loadmessage="Saving… Please wait" data-successmessage="Your changes were successfully saved" novalidate="novalidate">
+<input id="lineId" name="lineId" data-val="true" data-val-number="The field lineId must be a number." data-val-required="The lineId field is required." type="hidden" value="<%= lineId %>">
+	<input id="EncryptTourID" name="EncryptTourID" type="hidden" value="<%= lineId %>">
+	<input id="GoNext" name="GoNext" data-val="true" data-val-required="The GoNext field is required." type="hidden" value="False">    
+	<input type="hidden" name="GoPrev" value="">
+    <input type="hidden" id="image-source" value="">
+
+    <div id="main" class="step-container">	
+        <h2 class="steps-title">1. 线路概况</h2>
+        <div class="steps-desc">留下深刻的第一印象...</div>
+        <div class="td-field">
+            <div class="td-field-inner">
+                <h3>
+	                <em class="star">*</em>
+	                <label for="Thumbnail">封面照片</label>
+	            </h3>
+            <div class="cover-thumb has-suggestion" data-suggestion="This image represents your tour: it appears both on its cover and in the list of tours. Select it carefully.">
+                <div class="cover-contain" style="background-image:url()">
+                    <img src="" id="cover-img">
+                </div>
+                <!--<a class="medium-button" href="javascript:void(0);" onclick="triggerUpload();"><span>添加图片</span></a>-->
+                <input id="Cover" name="Cover" class="track-change" data-val="true" data-val-required="compulsory field" type="hidden" value="123">
+            </div>
+			<input name="file_upload" id="file_upload" value="">
+            <div class="error-msg">
+                <span class="field-validation-valid" data-valmsg-for="Thumbnail" data-valmsg-replace="true"></span>
+            </div>
+            <div class="field-desc"></div>
+        </div>
+        <div class="td-field">
+            <div class="td-field-inner">
+                <h3>
+                    <em class="star">*</em>
+                    <label for="Name">线路名称</label>
+                </h3>
+                <input id="lineName" name="lineName" class="txtfield forcounter has-suggestion track-change" data-suggestion="Choose an original and relevant name for your tour content." data-val="true" data-val-length="type between 3 and 50 characters" data-val-length-max="50" data-val-length-min="3" data-val-required="compulsory field" type="text" value="">
+                <p class="charleft">
+                    <span>8</span>/50
+                </p>
+            </div>
+            <div class="error-msg">
+                <span class="field-validation-valid" data-valmsg-for="Name" data-valmsg-replace="true"></span>
+            </div>
+            <div class="field-desc"></div>
+        </div>
+        <div class="td-field">
+        <div class="td-field-inner">
+            <h3>
+                <em class="star">*</em>
+                <label for="Description">简介</label>
+            </h3>
+            <textarea id="lineSummary" name="lineSummary" class="txtarea forcounter elastic has-suggestion track-change" cols="20" data-suggestion="A summary is a teaser for your tour. It gives your content spirit and should make people want to download your tour." data-val="true" data-val-length="1000 character(s) max" data-val-length-max="1000" data-val-required="compulsory field" rows="2" style="overflow: hidden;"></textarea>
+            <p class="charleft">
+                <span>28</span>/1000
+            </p>
+        </div>
+        <div class="error-msg">
+            <span class="field-validation-valid" data-valmsg-for="Description" data-valmsg-replace="true"></span>
+        </div>
+            <div class="field-desc"></div>
+        </div>
+        
+        <div class="td-field">
+            <div class="td-field-inner">
+                <h3 class="us-title">
+                    <em class="star">*</em>
+                    <label for="Description">地点</label>
+                </h3>
+                <input id="mapAddress" name="mapAddress" class="txtfield track-change" 
+					placeholder="请输入地址" data-val="true" data-val-required="compulsory field" type="text" value="" autocomplete="off">                        
+            </div>
+            <div class="error-msg">
+                <span class="field-validation-valid" data-valmsg-for="Location" data-valmsg-replace="true"></span>
+            </div>
+            <div class="field-desc">
+            </div>
+        </div>
+        <!--！ end td-field //++++++++++++++++++++++++++++++++++++-->
+
+        <div class="td-field">
+            <div class="td-field-inner">
+                <h3>
+                    <label for="keyWords">标签 (关键词)</label>
+                </h3>
+                <div class="tag-container" style="height: auto;">
+                	<input id="keyWords" name="keyWords" class="has-suggestion elastic track-change" data-suggestion="Try finding relevant keywords that are specific to your content. Type &quot;Enter&quot; to validate each tag." type="text" value="" />
+                </div>
+            </div>
+            <div class="field-desc"></div>
+        </div>
+       	<div class="td-field">
+            <h3>
+                <em class="star">*</em>
+                <label for="InlineTopics">主题</label>
+            </h3>
+            <div class="topic-container clearfix has-suggestion" data-suggestion="To select a theme, drag and drop it into the right box. To remove it, drag &amp; drop it into the left box.">
+                <ul id="sortable1" class="sortables connectedSortable ui-sortable">
+                        <li id="1">History</li>
+                        <li id="2">Arts</li>
+                        <li id="3">Fashion</li>
+                        <li id="4">Sports</li>
+                        <li id="5">Kids&#160;&amp; Families</li>
+                        <li id="6">Life Style</li>
+                        <li id="7">Nature</li>
+                </ul>
+                <div id="sortable2-container">
+                    <ul id="sortable2" class="sortables connectedSortable ui-sortable">
+                    </ul>
+                    <p class="topics-max">3 topics maximum</p>
+                </div>
+                <!-- end .sortable2-container //-->
+            </div>
+            <input class="track-change" data-val="true" data-val-errorholder="#sortable1" data-val-required="You must select at least 1 topic" id="topics" name="InlineTopics" type="hidden" value="">
+            <div class="error-msg">
+                <span class="field-validation-valid" data-valmsg-for="InlineTopics" data-valmsg-replace="true"></span>
+            </div>
+            <div class="field-desc">
+            </div>
+        </div>      
+    </div></form>
+    <!-- end #main //-->
+
+
+<footer>
+    <div id="footer-inside">
+        <a href="/create" class="f-exit" >退出</a>
+        <a href="/" class="f-del">删除</a>
+
+        <p class="back-next">
+            <a href="javascript:void(0);" class="large-button" id="footerbtn-discardchange" style=""><span>丢弃</span></a> 
+            <a href="javascript:void(0);" class="large-button-action" id="footerbtn-savechange" style=""><span>保存</span></a>
+            <a href="/step2" class="large-button-action large-button-action-next" style="display: none;"><span>2. 站点</span></a>
+        </p>
+    </div>
+</footer>
+
+
+    <script type="text/javascript">
+    var yuntour = yuntour || {};
+    yuntour.alert_popup = null;
+    yuntour.last_focus = null;
+    yuntour.alert_queue = [];
+	/*
+    function quota_alert(message) {
+        var popup = $("#quota-alert-js-window");
+        popup.find("#text").html(message);
+        popup.lightbox_me({
+            centered: true,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2,
+                zIndex: 9998
+            },
+            zIndex: 9999,
+            onClose: function () {
+            }
+        });
+
+    }
+
+    function alert(message, title) {
+        if (yuntour.alert_popup != null) {
+            yuntour.alert_queue.push({ type: "alert", message: message, title: title });
+            return;
+        }
+
+        yuntour.last_focus = $("input, textarea").filter(":focus");
+        yuntour.last_focus.trigger("blur");
+
+        yuntour.show_alert_popup(message, title);
+
+        $(document).bind("keyup.popup", function (e) {
+            if (e.keyCode == 13) {
+                if (yuntour.alert_popup) {
+                    yuntour.alert_popup.trigger("close");
+                    if (yuntour.last_focus) {
+                        yuntour.last_focus.trigger("focus");
+                        yuntour.last_focus = null;
+                    }
+                }
+            }
+        });
+    } 
+
+    yuntour.show_next = function () {
+        yuntour.alert_queue.reverse();
+        var next = yuntour.alert_queue.pop();
+        yuntour.alert_queue.reverse();
+        switch (next.type) {
+            case "alert":
+            default:
+                yuntour.show_alert_popup(next.message, next.title);
+                break;
+        }
+    };
+
+    yuntour.show_alert_popup = function (message, title) {
+        var popup = $("#alert-js-window");
+
+        popup.find("#title").html(title);
+        popup.find("#text").html(message);
+        yuntour.alert_popup = popup.lightbox_me({
+            centered: true,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2,
+                zIndex: 9998
+            },
+            zIndex: 9999,
+            onClose: function () {
+                if (yuntour.alert_queue.length == 0) {
+                    $(document).unbind("keyup.popup");
+                    yuntour.alert_popup = null;
+                    return;
+                }
+
+                yuntour.show_next();
+
+            }
+        });
+
+    }
+
+    yuntour.show_confirm_popup = function (message, title, okHandler, cancelHandler) {
+
+    }
+	*/
+    var loadingBox;
+    var slc;
+    var closeOnLoad = false;
+    function hideLoading() {
+        slc = true;
+        $(".loading-msg-container").fadeOut();
+    }
+    function showLoading(message) {
+        $(".loading-msg-container").fadeIn(function () {
+            if (slc)
+                setTimeout(function () {
+                    $(".loading-msg-container").fadeOut();
+                }, 100);
+        });
+        return false;
+
+        //message = message ? message : 'Loading, please wait';
+        //var popup = $("#loading-js-window");
+        //slc = false;
+        ////popup.find("#title").text(title);
+        ////popup.find("#text").html(message);
+        //loadingBox = popup.lightbox_me({
+        //    centered: true,
+        //    closeSelector: ".close-window",
+        //    overlaySpeed: 0,
+        //    overlayCSS: {
+        //        background: 'black',
+        //        opacity: .2
+        //    },
+        //    onLoad: function () {
+        //        if (slc)
+        //            setTimeout(function () {
+        //                $("#loading-js-window").trigger("close");
+        //            }, 100);
+        //    },
+        //    closeClick: false,
+        //    zIndex: 9999
+        //});
+    }
+
+    function confirm(message, title, okHandler, cancelHandler) {
+        title = title ? title : 'Confirmation';
+        var popup = $("#confirm-js-window");
+
+        popup.find("#title").html(title);
+        popup.find("#text").html(message);
+
+        var okButton = popup.find("#button-ok");
+        okButton.unbind("click");
+        okButton.bind("click", function (e) {
+            okHandler();
+            popup.trigger("close");
+            e.preventDefault();
+        })
+
+        var cancelButton = popup.find("#button-cancel");
+        cancelButton.unbind("click");
+        if (cancelHandler) {
+            cancelButton.bind("click", function (e) { cancelHandler(); e.preventDefault(); })
+        }
+        popup.lightbox_me({
+            centered: true,
+            closeClick: false,
+            closeEsc: false,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2
+            },
+            zIndex: 9999
+        });
+    }
+    function info(message, time) {
+        time = time ? time : 4000;
+        var popup = $("#info-js-container");
+        popup.find("#message").html(message);
+
+        popup.fadeIn();
+        setTimeout(function () {
+            popup.fadeOut('fast');
+        }, time);
+        return false;
+    }
+
+    var saveDiscaedPopup;
+    var action = "";
+    function saveOrDiscard(message, saveHandler, discardHandler, closeHandler) {
+        var popup = $("#changes-window").clone();
+        popup.find("#text").html(message);
+
+        var okButton = popup.find("#button-save");
+        okButton.unbind("click");
+        okButton.bind("click", function (e) {
+            saveHandler();
+            action = "saving";
+            popup.trigger("close");
+            e.preventDefault();
+        })
+
+        var cancelButton = popup.find("#button-discard");
+        cancelButton.unbind("click");
+
+        cancelButton.bind("click", function (e) {
+            action = "canceling";
+            if (discardHandler)
+                discardHandler();
+            popup.trigger("close");
+            e.preventDefault();
+        });
+        popup.lightbox_me({
+            centered: true,
+            closeClick: false,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2
+            },
+            destroyOnClose: true,
+            onLoad: function () {
+                action = "";
+            },
+            onClose: function () {
+                if (action != "saving" && action != "canceling" && typeof closeHandler != 'undefined') {
+
+                    closeHandler();
+                }
+            },
+            zIndex: 9999
+        });
+    }
+
+    function setLoadingHeight() {
+
+        $loadingc = $('.loading-msg-container');
+        if ($(window).height() < $(document).height()) {
+            $loadingc.css({ height: $(document).height() + 'px' });
+        } else {
+            $loadingc.css({ height: '100%' });
+            //if (ie6) {
+            //    $('html,body').css('height', '100%');
+            //} // ie6 hack for height: 100%; TODO: handle this in IE7
+        }
+    }
+    $(function () {
+        $(window).resize(setLoadingHeight);
+        //$(window).scroll(setLoadingHeight);
+    });
+
+</script>
+<div class="loading-msg-container dn" style="height: 2363px;">
+
+    <div class="loading-msg">
+        <img src="./images/working.gif" alt="">
+        Working…
+
+    </div>
+
+</div>
+</body>
+</html>

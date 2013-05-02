@@ -16,6 +16,7 @@ function Line(line) {
   this.topics = line.topics;
   this.price = line.price;
   this.author = line.author;
+  this.authorImage = line.authorImage;
   this.authorEmail = line.authorEmail;
   this.authorBio = line.authorBio;
   this.authorType = line.authorType;
@@ -95,12 +96,12 @@ Line.prototype.create = function create(callback) {
 	  mongodb.open(function(err, db){
             db.collection('user', function(err, collection){
 	      console.log('line:' + line.author);
-	      collection.update({userEmail : line.author},
+	      collection.update({userEmail : line.authorEmail},
 		                {$push : {tourCreate : line._id}},
 				{safe : true},
-				function(err, line){
+				function(err, lin){
 				
-                mongodb.close();
+                mongodb.close();		
 		callback(err, line);
 	      });
 	    });
@@ -130,6 +131,28 @@ Line.get = function get(lineid, callback){
 	if (doc) {
 	  var line = new Line(doc);
 	  callback(err, line);
+	} else {
+	  callback(err, null);
+	}
+      });
+    });
+  });
+};
+//根据路线ID,删除路线
+Line.remove = function remove(lineid, callback){
+  mongodb.open(function(err, db){
+    if (err) {
+      return callback(err);
+    }
+    db.collection('line', function(err, collection){
+      if (err) {
+	mongodb.close();
+	return callback(err);
+      }
+      collection.remove({_id : new ObjectId(lineid)}, function(err, doc){
+        mongodb.close();
+	if (doc) {;
+	  callback(err, doc);
 	} else {
 	  callback(err, null);
 	}
@@ -180,6 +203,7 @@ Line.update = function update(lineid, line, callback){
     });
   });
 };
+//Android
 //根据时间顺序返回beg到end数目的路线
 Line.findAllByTime = function findAllByTime(beg, end, callback){
   mongodb.open(function(err, db){

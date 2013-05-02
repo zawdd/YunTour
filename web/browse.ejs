@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<!-- saved from url=(0132)http://www.guidigo.com/discover-tours?country=all&city=all&topic=all&start=0&itemsPerPage=6&orderBy=AverageRating&desc=True&lang=all -->
+<html lang="en" style="">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <meta name="apple-itunes-app" content="app-id=540673423">
+    
+
+    <script src="./javascripts/jquery.min.js"></script>
+    <script type="text/javascript">
+        var ua = navigator.userAgent,
+            clickEvent = (ua.match(/iPad/i)) ? "touchstart" : "click",
+            baseUrl = '/';
+    </script>
+	<link href="/stylesheets/main-css.css" rel="stylesheet">
+    <link href="/stylesheets/tour-list.css" rel="stylesheet">
+	<script src="/javascripts/jquery.js"></script>
+	
+	<script src="/javascripts/jqueryui.js"></script>
+	<script src="/javascripts/jqueryval.js"></script>
+	<script src="/javascripts/modernizr.js"></script>
+    <script src="/javascripts/jquery.qtip.min.js"></script>
+	<script src="/javascripts/jquery.jplayer.min.js"></script>
+	<script src="/javascripts/jquery.expander.min.js"></script>
+	<script src="/javascripts/jquery.jscrollpane.min.js"></script>
+    <script src="/javascripts/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="./javascripts/jquery.selectbox.min.js"></script>
+
+
+    <script type="text/javascript">
+        var isSignUp = false;
+        var planID = null;
+        $(document).ready(function () {
+            //SIGN IN SUBMIT
+            $('#signin-form').submit(function (e) {
+                var $form = $(this);
+                // We check if jQuery.validator exists on the form
+                if (!$form.valid || $form.valid()) {
+                    $(".signin-loader").show();
+                    $(".signin-button").hide();
+
+                    $.post($form.attr('action'), $form.serializeArray()).done(function (json) {
+                        json = json || {};
+                        if (json.success) {
+                            if (planID)
+                                location.href = "/User/Billing/_mapid_/".replace(/_mapid_/, planID);
+                            else
+                                location.reload();
+                            //info($form.data("successmessage"));
+                        } else if (json.errors) {
+                            var items = $.map(json.errors, function (error) {
+                                return error + '<br />';
+                            }).join('');
+                            $(".post-error").html(items);
+                            //alert(items);
+                            $(".signin-loader").hide();
+                            $(".signin-button").show();
+                        }
+                    });
+                } else {
+                    //alert("Please fill-in all the mandatory fields of the page and/or check the size of the texts in red fields.");
+                }
+                e.preventDefault();
+            });
+
+            //SIGN UP SUBMIT
+            $('#signup-form').submit(function (e) {
+                var $form = $(this);
+                // We check if jQuery.validator exists on the form
+                if (!$form.valid || $form.valid()) {
+                    $(".signup-loader").show();
+                    $(".signup-btn").hide();
+
+                    $.post($form.attr('action'), $form.serializeArray()).done(function (json) {
+                        json = json || {};
+                        if (json.success) {
+
+                            isSignUp = true;
+                            $('#win-signup-1').hide();
+                            $('#win-success').show();
+                            $(".welcome-user h5").html(json.name);
+                            $(".welcome-user span").html(json.email);
+                            //info($form.data("successmessage"));
+                        } else if (json.errors) {
+
+
+                            var items = $.map(json.errors, function (error) {
+                                if (error.Field) {
+                                    $("input[name=" + error.Field + "]").parent().addClass("si-not-validated");
+                                    $("input[name=" + error.Field + "]").parent().removeClass('si-validated');
+
+                                    $("span[data-valmsg-for=" + error.Field + "]").html(error.Message);
+                                } else {
+                                    return error.Message + '<br />';
+                                }
+                            }).join('');
+
+                            if (items)
+                                alert(items);
+
+                            $(".signup-loader").hide();
+                            $(".signup-btn").show();
+                        }
+                    }).error(function () {
+                        alert("error");
+                        $(".signup-loader").hide();
+                        $(".signup-btn").show();
+                    });
+                } else {
+                    //alert("Please fill-in all the mandatory fields of the page and/or check the size of the texts in red fields.");
+                }
+                e.preventDefault();
+            });
+
+
+            //SIGN UP SUBMIT
+            $('#reset-form').submit(function (e) {
+                var $form = $(this);
+                // We check if jQuery.validator exists on the form
+                if (!$form.valid || $form.valid()) {
+                    $(".reset-loader").show();
+                    $(".reset-btn").hide();
+
+                    $.post($form.attr('action'), $form.serializeArray()).done(function (json) {
+                        json = json || {};
+                        if (json.success) {
+                            isSignUp = true;
+                            $('#win-forgot-1').hide();
+                            $('#win-forgot-3').show();
+                            $(".si-desc-cent strong", "#win-forgot-3").html(json.email);
+                            //info($form.data("successmessage"));
+                        } else if (json.errors) {
+                            var items = $.map(json.errors, function (error) {
+                                return error + '<br />';
+                            }).join('');
+
+                            alert(items);
+                            $(".reset-loader").hide();
+                            $(".reset-btn").show();
+                        }
+                    });
+                } else {
+                    //alert("Please fill-in all the mandatory fields of the page and/or check the size of the texts in red fields.");
+                }
+                e.preventDefault();
+            });
+
+            var launchSignIn = function () {
+                $('#win-signin-1').show();
+                $('#win-signin-2').hide();
+                $('#win-signin-3').hide();
+                $('#win-forgot-1').hide();
+                $('#win-forgot-2').hide();
+                $('#win-forgot-3').hide();
+
+                $('.si-field input', "#signin-form").removeClass('typed-in');
+                $(".si-not-validated", "#signin-form").removeClass("si-not-validated");
+                document.getElementById("signin-form").reset()
+                var validator = $("#signin-form").data('validator');
+                validator.resetForm();
+
+                $('#signin-container').lightbox_me({
+                    centered: true,
+                    closeSelector: ".closeWindow",
+                    showOverlay: true,
+                    overlayCSS: {
+                        background: '#f2ebe0',
+                        opacity: .75
+                    },
+                    onLoad: function () {
+                        $("#UserName", "#signin-container").focus();
+                        var validator = $("#signin-form").data('validator');
+
+                        validator.resetForm();
+                    },
+                    zIndex: 1200
+                });
+            }
+
+            $('#signin-nav-btn, #signin-lnk').click(function (e) {
+                launchSignIn();
+                e.preventDefault();
+            });
+
+            $("#dh-signup").click(function (e) {
+                $('#signin-container').trigger("close");
+                launchSignUp();
+                e.preventDefault();
+            });
+
+            $("#dh-signin").click(function (e) {
+                $('#signup-container').trigger("close");
+                launchSignIn();
+                e.preventDefault();
+            });
+
+
+            $('#loader-signin').click(function () {
+                $('#win-signin-2').hide();
+                $('#win-signin-3').show();
+                return false;
+            });
+            $('.si-forgot').click(function () {
+                $('#win-signin-1').hide();
+                $('#win-signin-2').hide();
+                $('#win-signin-3').hide();
+                $('#win-forgot-1').show();
+                return false;
+            });
+
+            $('#reset-pass').click(function () {
+                $("#reset-form").submit();
+                return false;
+            });
+
+            $('#loader-forgot').click(function () {
+                $('#win-forgot-2').hide();
+                $('#win-forgot-3').show();
+                return false;
+            });
+
+
+            $('#signup-nav-btn, #signup-lnk').click(function (e) {
+                launchSignUp();
+                e.preventDefault();
+            });
+
+            $('#loader-signup').click(function () {
+                $('#win-signup-2').hide();
+                $('#win-success').show();
+
+                return false;
+            });
+
+        });
+        var launchSignUp = function () {
+            $('.si-field input', "#signup-form").removeClass('typed-in');
+            $(".si-not-validated", "#signup-form").removeClass("si-not-validated");
+            document.getElementById("signup-form").reset()
+            var validator = $("#signup-form").data('validator');
+            validator.resetForm();
+            $('.forcounter', "#signup-form").each(function () {
+                countCharacters($(this));
+            });
+
+
+            $('#signup-container').lightbox_me({
+                centered: true,
+                closeSelector: ".closeWindow",
+                overlayCSS: {
+                    background: '#f2ebe0',
+                    opacity: .75
+                },
+                zIndex: 1200,
+                onClose: function () {
+                    if (isSignUp) {
+                        debugger;
+                        if (planID)
+                            location.href = "/User/Billing/_planid_/".replace(/_planid_/, planID);
+                        else
+                            location.reload();
+                    }
+                },
+                onLoad: function () {
+                    $("#DisplayName", "#signup-container").focus();
+                }
+            });
+        }
+
+    </script>
+    
+    
+        <script type="text/javascript">
+            var savedParams = 
+            {   
+                country :'all',
+                city :'all',
+                topic :'all',
+
+                start :0,
+                itemsPerPage :6,
+                orderBy :'AverageRating',
+                desc :'True',
+                lang : 'all'
+            }
+    
+        </script>
+
+        <script type="text/javascript">
+            var totalRow ;
+            var ua = navigator.userAgent,
+                event = (ua.match(/iPad/i)) ? "touchstart" : "click";
+
+            function getSavedParam(){
+                var url = document.location.href;
+
+                var s = '';// document.location.search;
+
+                $.each(savedParams, function(key, value){
+                    var kvp = key+"="+value;
+                    var r = new RegExp("(&|\\?)"+key+"=[^\&]*");
+                    s = s.replace(r,"$1"+kvp);
+                    if(!RegExp.$1) {s += (s.length>0 ? '&' : '?') + kvp;};
+                });
+                return s;
+            }
+
+
+            function insertParam(key, value)
+            {
+                key = escape(key); value = escape(value);
+
+                var kvp = document.location.search.substr(1).split('&');
+
+                var i=kvp.length; var x; while(i--) 
+                {
+                    x = kvp[i].split('=');
+
+                    if (x[0]==key)
+                    {
+                        x[1] = value;
+                        kvp[i] = x.join('=');
+                        break;
+                    }
+                }
+
+                if(i<0) {kvp[kvp.length] = [key,value].join('=');}
+
+                //this will reload the page, it's likely better to store this until finished
+                document.location.search = kvp.join('&'); 
+            }
+            var loadGrid = function(params) {
+                $.extend(savedParams, params);
+                //showLoading();
+                $.get('/Tour/GridData', savedParams).done(function(rows, status, xhr) {
+
+                    $("#AjaxGrid").html(rows);
+                    $('span.stars-mini').starsMini();
+                    roundImages();
+                    hideLoading();
+                    totalRow = Math.floor(xhr.getResponseHeader('X-Total-Row-Count'));
+
+                    $("#last-breadcrumbs").html(xhr.getResponseHeader('X-Bread-Crumbs-Text'));
+                    var format = "Found <strong>__COUNT__</strong> tour(s)".replace( /__COUNT__/ , totalRow);
+                    $(".tours-found strong").html(totalRow);
+
+                    initPage();
+                    
+                    setTimeout(function(){
+                        changeUrl();
+                    }, 100);
+                });
+
+            };
+
+            var changeUrl = function() {
+ 
+                var url = getSavedParam();
+                var pageIndex = parseInt(savedParams.itemsPerPage * savedParams.start / totalRow);
+
+                //history.pushState(savedParams, window.title + " page:" + pageIndex , url);
+                if(!$.fn.deepEquals(history.state, savedParams)){
+                    if(document.location.search ){
+                        history.pushState(savedParams, window.title, url);
+                    }else{
+                        history.replaceState(savedParams, window.title, url);
+                    }
+                }
+            }
+
+
+            var scrollToTopPage = function() {
+                $('html, body').animate({
+                    scrollTop: $("#main-btours").offset().top
+                }, 500);
+            };
+
+            var initPage = function() {
+                $(".page-link").click(function(e) {
+                    if ($(this).hasClass("ltf-disabled"))
+                        return false;
+
+                    var page = $(this).data("page");
+                    loadGrid({ start: page * savedParams.itemsPerPage });
+                    scrollToTopPage();
+                    e.preventDefault();
+                });
+                $(".ltf-next").click(function(e) {
+                    if ($(this).hasClass("ltf-disabled"))
+                        return false;
+                    loadGrid({ start: savedParams.start + savedParams.itemsPerPage });
+                    scrollToTopPage();
+                    e.preventDefault();
+                });
+
+                $(".ltf-prev").click(function(e) {
+                    if ($(this).hasClass("ltf-disabled"))
+                        return false;
+                    loadGrid({ start: savedParams.start - savedParams.itemsPerPage });
+                    scrollToTopPage();
+                    e.preventDefault();
+                });
+
+            };
+            
+            function reorderBySelection() {
+                var reloadParams = {
+                    start: 0,
+                    orderBy: $("#select-sortby").children().filter(":selected").val(),
+                    desc: ($("#select-sortdesc").val() == "1")
+                };
+                loadGrid(reloadParams);
+            };
+            
+            //Array.prototype.deepEquals = function(o1, o2) {
+            //    var k1 = Object.keys(o1).sort();
+            //    var k2 = Object.keys(o2).sort();
+            //    if (k1.length != k2.length) return false;
+            //    return k1.zip(k2, function(keyPair) {
+            //        if(typeof o1[keyPair[0]] == typeof o2[keyPair[1]] == "object"){
+            //            return deepEquals(o1[keyPair[0]], o2[keyPair[1]])
+            //        } else {
+            //            return o1[keyPair[0]] == o2[keyPair[1]];
+            //        }
+            //    }).all();
+            //};
+            $(function () {
+
+                window.onpopstate = function(event) {
+                    if(event && event.state) {
+                        // event.state.foo
+                        //debugger;
+                        //location.reload();
+                        loadGrid(event.state);
+                    }
+                }
+
+                $.ajaxSetup({ cache: false });
+                $("#select-sortby").live("change", function (e) {
+                    reorderBySelection();
+                });
+                $(".sblink").click(function () {
+                    $(this).toggleClass("sblink2");
+                    var sens = Number($("#select-sortdesc").val());
+                    $("#select-sortdesc").val((sens + 1) % 2);
+                    var order = $("#select-sortby").children().filter(":selected").val();
+                    reorderBySelection();
+                    return false;
+                });
+                $("a.all-langs, .tp-lang ul li a").bind(clickEvent, function (e) {
+                    if ($(this).hasClass("tourdrop-select"))
+                        return false;
+
+                    $("a.all-langs, .tp-lang ul li a.tourdrop-select").removeClass("tourdrop-select");
+                    $(this).addClass("tourdrop-select");
+                    $("#tours-lang a span").html($(this).html());
+                    loadGrid({
+                        start: 0,
+                        lang : $(this).data("lang")
+                    });
+
+                    e.preventDefault();
+                });
+                $("a.all-places, .tp-country ul li a").bind(clickEvent,  function (e) {
+                    if ($(this).hasClass("tourdrop-select"))
+                        return false;
+
+
+                    $("a.all-places, .tp-country ul li a.tourdrop-select").removeClass("tourdrop-select");
+                    $(this).addClass("tourdrop-select");
+                    $("#tours-place a span").html($(this).html());
+                    loadGrid({
+                        start: 0,
+                        country: $(this).data("country"),
+                        city: $(this).data("city")
+                    });
+
+                    e.preventDefault();
+                });
+
+                $("a.all-topics, .tp-topic ul li a").bind(clickEvent, function (e) {
+                    if ($(this).hasClass("tourdrop-select"))
+                        return false;
+
+                    $("a.all-topics, .tp-topic ul li a.tourdrop-select").removeClass("tourdrop-select");
+                    $(this).addClass("tourdrop-select");
+                    $("#tours-topic a span").html($(this).html());
+                    loadGrid({
+                        start: 0,
+                        topic: $(this).data("topic")
+                    });
+
+                    e.preventDefault();
+                });
+            });
+        </script>
+
+	
+</head>
+<body itemscope="" itemtype="http://schema.org/Product" id="">
+    <header id="home-header">
+        <div id="header-content">
+            <h1>
+            <a href="/">
+            	<img src="/images/yunyou.png" style="width: 168px"></a>
+            </h1>
+            <nav id="main-nav">
+                <ul class="clearfix">
+                    <li class=""><a href="/browse">观看线路</a></li>
+                    <li class=""><a href="/create">创建线路</a></li>
+                </ul>
+            </nav>
+			<div id="sub-nav">
+				<ul class="subnav-links clearfix">            
+					<li>
+						<a href="/signin" id="signin-nav-btn">登录</a>
+					</li>
+					<li>
+						<a href="/singup" id="signup-nav-btn">注册</a>
+					</li>   
+				</ul>
+			</div>            
+			<div id="subtitle">
+				<ul id="breadcrumbs">
+					<li><a href="/">云游首页</a></li>
+					<li><a href="/browse">观看线路</a></li>
+				</ul>
+			</div>
+        </div>
+    </header>
+    <!--！ end #header -->
+    
+<div id="main-btours" role="main" class="clearfix">
+    <div class="latest-header">
+        <p class="tours-found">
+	发现 <strong><%= Object.keys(lines).length %></strong> 个路线
+        </p>
+    </div>
+    <!-- end .latest-header -->
+
+    <div id="AjaxGrid">
+	    <ul id="ltours-listed" class="clearfix">
+          <% lines.forEach(function(line, index) { %>  		    
+	<li><a href="/detail?lineid=<%= line._id %>">
+	    <span class="lt-place"><%= line.mapAddress %></span>
+            <span class="stars-mini"><span style="width: 64px;"></span></span>
+            <span class="lt-photo">
+                <span class="lt-photo-inside">
+			<!--<span style="background-image:url(); height: 320px; width: 428px;" class="bigrounded"></span>-->
+			<img src=<%= line.coverThumbnail %> alt="" width="428" height="320">
+                </span>                
+
+            </span>
+	    <span class="lt-title"><%= line.lineName %></span>
+            <span class="lt-author-p">
+		    <!--<span style="background-image:url(); height: 60px; width: 60px;" class="smallrounded"></span>-->
+			    <img src=<%= line.authorImage %> alt="" width="60" height="60">
+            </span>
+
+            <span class="lt-author-name">
+		    <%= line.author %>
+            </span><span class="lt-author-desc">
+	    	<%= line.authorBio %>
+            </span><span class="lt-language">
+	        <%= line.language %>
+            </span><span class="lt-pricing lt-free">
+	        <%= line.price %>
+            </span></a></li>
+            <!--clone li here-->
+	    <% }) %>	        
+		</ul>
+	<div class="lt-footer">
+	    <p class="tours-found">
+	        发现 <strong><%= Object.keys(lines).length %></strong> 个线路
+	    </p>
+	    <ul><li class="ltf-prev">
+	    	<a class="ltf-disabled">
+	    		<img src="./images/ltf-prev.png"></a></li>
+	    	<li><a class="ltf-disabled page-link" data-page="0">1</a></li>
+		<li><a class="page-link" data-page="1" href="?page=2">2</a></li>
+	    	<!--还需要修改-->
+	    	<li>...</li>
+		<li class="ltf-next"><a href="?page=<%= page+1 %>">
+		<img src="./images/ltf-next.png"></a></li>
+	    </ul>
+	</div>
+	</div>
+    <script>
+        $(function () {
+            loadGrid(null);
+        });
+    </script>
+</div>
+<!--! end #main -->
+
+	
+</body></html>
+

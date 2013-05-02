@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>step1</title>
+    <meta name="viewport" content="width=device-width">
+    <link href="./stylesheets/main.css" rel="stylesheet">
+    <link href="./stylesheets/step2-css.css" rel="stylesheet">
+    
+    <script src="./javascripts/jquery.min.js"></script>
+    <script src="./javascripts/jquery.js"></script>
+    <script src="./javascripts/jqueryui.js"></script>
+    <script src="./javascripts/jquery.uploadify.min.js" type="text/javascript"></script>
+    <script src="./javascripts/jquery.jscrollpane.min.js"></script>
+    
+	<script type="text/javascript">
+        var baseUrl = "/";            
+    </script>
+    
+</head>
+
+<body>
+<header id="home-header">
+    <div id="header-content">
+        <h1>
+        <a href="/">
+        	<img src="/images/yunyou.png" style="width: 168px"></a>
+        </h1>
+		<div id="sub-nav">
+			<ul class="subnav-links clearfix">            
+				<li>
+					<a href="/signin" id="signin-nav-btn">登录</a>
+				</li>
+				<li>
+					<a href="/singup" id="signup-nav-btn">注册</a>
+				</li>   
+			</ul>
+			<ul class="subnav-links clearfix" style="display:none">
+				<li id="subnav-user">
+                    <a href="#" class="dropbtn">
+                        <em><span></span></em>
+                    </a>
+                    <div class="subnav-dropdown" id="sn-user-dropdown">
+                        <span class="sn-user-email">junguoshen@outlook.com</span>
+	                        <ul class="sn-meta">
+	                            <li><a href="/User/MyProfile" target="_blank">my author page</a></li>
+	                            <li><a href="/User/MySettings" target="_blank">my settings</a></li>
+	                        </ul>
+                        <ul>                            
+                            <li><a href="/Account/LogOff">log out</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+		</div>            
+    </div>
+</header>
+<!--！ end #header -->
+
+
+<div id="subheader">
+    <div id="subheader-inside" class="clearfix">
+        <ul>
+            <li class="active subheader-selected"><a href="/">线路</a></li>
+        </ul>
+        
+	    <p class="clearfix newtour-btn">
+	        <a href="/Tour" class="medium-button-action"><span>创建新线路</span>
+	        </a>
+	    </p>
+    </div>
+</div>
+<!-- end #subheader //-->
+
+<div role="main" id="main" class="main-tour" style="display:block">
+    <div class="tourlist-meta clearfix">
+        <h2 class="tourlist-title">
+            已有线路
+        </h2>
+        <div class="tourlist-move clearfix">
+        <p class="pages-of clearfix">
+            <strong></strong>of <strong></strong>
+        </p>
+
+        <p class="pages-ctrl clearfix">
+            <a href="e" class="page-prev  page-disabled ir">previous</a>
+            <a href="" class="page-next ir page-disabled">next</a>
+        </p>
+    	</div>
+    </div>
+    <!-- end .tourlist-meta //-->
+    
+    <div class="tourlist-controls clearfix">
+        <div class="select-del select-del-rev">
+            <a href="javascript:void(0);" class="medium-button checkall-button"><span><em>
+                <input id="checkall" type="checkbox" name="checkall" value=""></em></span></a>
+            <a href="javascript:void(0);" class="medium-button medium-disabled delete-button">
+            	<span><b>Delete</b></span></a>
+        </div>
+    </div>
+    <!-- end .tourlist-controls //-->
+    
+    <div class="no-tours clearfix  no-results" style="display: none">
+        No results
+    </div>
+    
+    <div id="AjaxGrid">
+		<div id="" class="tourlist-item">
+    		<input type="checkbox" name="tlitem" class="tlitem tour-checkbox" value="">
+    		<div class="tlimg">
+        			<a href=""><span></span></a>
+    			</div>
+    			<p class="tl-place">
+        			Beijing, China
+    			</p>
+			    <h3 class="tl-title">
+			        <a href="">Lawrence</a>
+			    </h3>
+			    <p class="tl-author">
+			        by FangX
+			    </p>
+			    <p class="tl-lang has-lang">
+			        in <span class="label-lang">中文</span>
+			    </p>
+			    <div class="tl-change clearfix">
+			        <p class="l-change">
+			            Last change: <span>3/21/2013</span>
+			        </p>
+			        <span class="lab-draft lab">Draft</span>
+			    </div>
+			    <p class="stops-num">
+			        1 stops
+			    </p>
+    			<div class="stop-thumbs"><div class="stop-thumbs-show">
+    			<div class=" jcarousel-skin-guidigo"><div class="jcarousel-container jcarousel-container-horizontal" style="position: relative; display: block;"><div class="jcarousel-clip jcarousel-clip-horizontal" style="position: relative;"><ul class="stops-carousel jcarousel-list jcarousel-list-horizontal" style="overflow: hidden; position: relative; top: 0px; margin: 0px; padding: 0px; left: 0px; width: 62px;">
+            		<li class="jcarousel-item jcarousel-item-horizontal jcarousel-item-1 jcarousel-item-1-horizontal" style="float: left; list-style: none; width: 62px;" jcarouselindex="1"><a href="/Tour/Stop/iVrsCPFXsHU/XN6pQgMdrV0" oldtitle="&lt;b&gt;北京&lt;/b&gt;&lt;br&gt;&lt;em&gt;3&lt;/em&gt; images, &lt;em&gt;00:12&lt;/em&gt; audio, &lt;em&gt;in sync&lt;/em&gt;" aria-describedby="ui-tooltip-0">
+                		<span style="background-image:url(); height: 60px; width: 60px;" class="smallrounded"><img src="" id="thumb-img"></span>
+                <span class="s-num">1</span> </a></li></ul></div>
+                <div class="jcarousel-prev jcarousel-prev-horizontal jcarousel-prev-disabled jcarousel-prev-disabled-horizontal" style="display: block;" disabled="disabled"></div><div class="jcarousel-next jcarousel-next-horizontal jcarousel-next-disabled jcarousel-next-disabled-horizontal" style="display: block;" disabled="disabled">
+                </div></div></div>
+				</div>
+			</div>
+		    <div class="stop-loading-div-overlay" style="display: none;"></div>
+		    <div style="display: none;" class="stop-loading-div" data-key="iVrsCPFXsHU">
+		        <span style="left: 50%;">
+		            <img src="/images/preload.gif" style="vertical-align:middle">
+		            加载中 </span>
+		    </div>
+		    <!-- end .stop-thumbs //-->
+		    <div class="tl-controls-container" data-lang="zh" data-id="" style="width: 34px; height: 150px;">
+		        <div class="tl-controls">
+		            <ul>
+		                <li class="tlc-first"><a class="tlc-edit" href="">Edit</a></li>
+		                <li><a href="javascript:void(0);" class="tlc-clone">Duplicate</a></li>
+		                <li><a href="javascript:void(0);" class="tlc-delete">Delete</a></li>
+		            </ul>
+		        </div>
+		    </div>
+		</div>
+		<!-- end .tourlist-item //-->
+
+		<fieldset class="allitems">
+	    <div class="tourlist-meta2">
+	        <div class="tourlist-pagination clearfix">
+	            <ul><li><a class="ltf-disabled page" data-index="0">1</a></li></ul>
+	        </div>        
+	        <div class="tourlist-move clearfix">
+		        <p class="pages-of clearfix">
+		            <strong></strong>of <strong></strong>
+		        </p>
+		        <p class="pages-ctrl clearfix">
+		            <a href="" class="page-prev  page-disabled ir">previous</a>
+		            <a href="/browse-tours?start=10&amp;itemsPerPage=10&amp;orderBy=LastChangeDate&amp;desc=True" class="page-next ir page-disabled">next</a>
+		        </p>
+		    </div>
+	    </div>
+		</fieldset>
+    </div>
+</div>
+</body>
+</html>
+
+ 					

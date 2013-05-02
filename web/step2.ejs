@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <title><%= title %></title>
+    <link href="./stylesheets/main.css" rel="stylesheet">
+    <link href="./stylesheets/step2.css" rel="stylesheet">
+    <link rel="stylesheet" href="./stylesheets/uploadify.css">
+    <link href="./skin/blue.monday/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />
+    
+	<script src="./javascripts/jquery.min.js"></script>
+	<script src="./javascripts/libs.js"></script>
+	
+    <script src="./javascripts/jquery.placeholder.min.js"></script>
+    <script src="./javascripts/jquery.uploadify.min.js" type="text/javascript"></script>
+    <script src="./javascripts/jquery.jplayer.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./javascripts/jquery.jscrollpane.min.js"></script>
+	
+	<script src="./javascripts/mystep2.js" type="text/javascript"></script>
+	
+	<script type="text/javascript">
+        var baseUrl = "/";
+        
+        $(function () {
+            setUnloadWarning();
+            initBlackBar();
+            
+            $("#stop-form").submit(function(e){
+		        var $form = $(this);
+		        if ($form.valid && !$form.valid()) {
+		            alert("请认真检查表格", "Error");
+		            return false;
+		        }
+		        return true;
+		    });
+        });
+    </script>
+</head>
+<body>
+<header id="home-header">
+    <div id="header-content">
+        <h1>
+        <a href="/">
+            <img src="/images/yunyou.png" style="width: 168px"></a>
+        </h1>
+        <div id="sub-nav">
+            <ul class="subnav-links clearfix">
+                <li id="subnav-user">
+                    <a href="#" class="dropbtn">
+                        <em><span><%= user %></span></em>
+                    </a>
+                    <div class="subnav-dropdown" id="sn-user-dropdown">
+                        <span class="sn-user-email"></span>
+                        <ul class="sn-meta">                                    
+                            <li><a href="/home?user=<%= user %>" target="_blank">主页设置</a></li>
+                        </ul>
+                        <ul>                                    
+                            <li><a href="/">退出帐号</a></li>
+                        </ul>
+                    </div>
+                </li>               
+            </ul>
+        </div>            
+    </div>
+</header>
+
+<div id="subheader-steps">
+    <div id="page-title">
+        <ul>
+            <li><a href="/create">创建路线</a></li>
+            <li><%= title %></li>
+        </ul>
+    </div>
+    <div id="subheader-steps-inside">
+        <ul class="steps-tabs clearfix">
+            <li class="step-description">
+                <a href="/step1">
+                    <span>
+                        <em>第一步</em>
+                        <strong>线路概况</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-tourstops step-active">
+                <a href="/step2">
+                    <span>
+                        <em>第二步</em>
+                        <strong>第n站点</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-map stop-dependant">
+                <a href="/step3">
+                    <span>
+                        <em>第三步</em>
+                        <strong>地图设置</strong>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--！ end subheader //++++++++++++++++++++++++++++++++++++-->
+
+<div class="lightbox-reorder dn" id="reorder-window">
+    <div id="re-list-container" class="scrollable">
+        <ul id="sortableListToCheckbox" class="ui-sortable" style="">
+        <!--Test-->
+        <li id="XN6pQgMdrV0" class="ui-state-default" style="">
+        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
+        <li id="XN6pQgMdrV0" class="ui-state-default" style="">
+        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
+        <li id="XN6pQgMdrV0" class="ui-state-default" style="">
+        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
+        <li id="XN6pQgMdrV0" class="ui-state-default" style="">
+        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
+		</ul>
+    </div>
+    <div id="re-list-ctrl" class="clearfix">
+        <a href="#" class="medium-button close-light cancel"><span>Cancel</span></a>
+        <a href="#" class="medium-button-action close-light"><span>Save new order</span></a>
+    </div>
+</div>
+
+<div id="main" class="step-container">
+    <h2 class="steps-title">2. 站点</h2>
+    <div class="steps-desc">站点是沿途经过的一部分，是你的路线与众不同的地方，在此你还可以加入图片和音频</div>
+    
+    <div class="black-bar-container fixed" style="top: -15px;">
+        <div class="black-bar">
+            <div class="bb-select">
+                <div class="nostops" style="display:none">
+                    路线还没有站点
+                </div>
+                <select name="choose-stop" id="sortableCheckboxFromList" style="display: none" class="selectBox">
+                	<!--<option value="" selected="selected">1. </option>--></select>
+                <!--<a class="selectBox selectBox-dropdown" style="width: 69px; display: inline-block;" title="" tabindex="0">
+                	<span class="selectBox-label" style="width: 392px;">1. </span><span class="selectBox-arrow"></span></a>-->
+            </div>
+            <a href="" class="ir bb-prev bb-disabled">上一个</a> 
+            <a href="" class="ir bb-next bb-disabled">下一个</a>
+            <a href="" class="bb-delete">删除</a> 
+            <div class="bb-controls">
+                <a href="" class="medium-button-action" id="button-addnewstop" style="">
+                	<span><b>添加站点</b></span></a>
+                <a href="" class="medium-button" id="button-discardchange" style="display: none;">
+                	<span>放弃</span></a> 
+                <a href="" class="medium-button-action" id="button-savechange" style="display: none;">
+                	<span>保存</span></a>
+            </div>
+            <!-- end .bb-controls //-->
+        </div>
+        <!-- end .black-bar //-->
+    </div>
+    <div class="add-stop-arrow" style="display:none">
+        添加第一个站点
+    </div>
+    
+    <div id="stop-container">
+	<form id="stop-form" method="post" action="/stopInfoHandler" data-ajax="true" data-ajax-begin="fnDisableButton" data-ajax-method="Post" data-ajax-success="reloadSavedStop" data-successmessage="ok" novalidate="novalidate">
+		<input id="stopId" name="stopId" type="hidden" value="" data-val="true" data-val-number="The field StopID must be a number." data-val-required="The StopID field is required.">
+		<input id="lineId" name="lineId" type="hidden" value="">
+		<div class="step2-container" style="margin-top: 84px;">
+	    <div class="step2-container-inside">
+	        <div class="step2-container-inside-2">
+	            <div class="step2-item clearfix">
+                <div class="s-title-cont clearfix">
+                    <div class="ucc-image">
+                        <h4 class="us-title">
+                            <em class="star">*</em>
+                            站点封面
+                        </h4>
+                        <div class="uim-cont" id="thumb-container">
+                            <!-- style="background-repeat:no-repeat; background-image:url();" <a href="" class="medium-button" id="add-thumb"><span>添加图片</span></a>-->
+                        </div>
+                        <div class="error-msg">
+                            <span class="field-validation-valid" data-valmsg-for="Thumbnail" data-valmsg-replace="true"></span>
+                        </div>
+                        <!----><input id="stopThumbnail" name="stopThumbnail" class="track-change" data-val="true" data-val-errorholder=".uim-cont" data-val-required="compulsory field" type="hidden" value="">
+                    </div>
+                    
+                     <div class="st-cont">
+                        <div class="div-rel">
+                            <h4 class="us-title">
+                                <em class="star">*</em>
+                                站点名
+                            </h4>
+                            <input id="st-title" name="stopName" class="txtfield forcounter has-suggestion-2 track-change" type="text" value=""
+                            	data-suggestion="Select an appropriate name, relevant to the stop." data-val="true" data-val-length="50 character(s) max" data-val-length-max="50" data-val-required="compulsory field">
+                            <p class="charleft">
+                                <span>2</span>/50
+                            </p>
+                            <div class="error-msg error-msg-title">
+                                <span class="field-validation-valid" data-valmsg-for="Name" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+
+						<div class="div-rel">
+							<input name="file_upload1" id="file_upload1" value="">
+						</div>
+					</div>
+				</div>
+				</div>
+				
+				<div class="step2-item clearfix">
+                <div class="st-field clearfix" id="st-longdesc">
+                    <div class="div-rel">
+                        <h4 class="us-title">
+                            站点描述
+                        </h4>
+                        <textarea id="stopDesc" name="stopDesc" class="txtarea forcounter elastic track-change" cols="20" data-val="true" data-val-length="3000 character(s) max" data-val-length-max="3000" rows="2" style="max-height: 232px; overflow: hidden;"></textarea>
+                        <p class="charleft">
+                            <span>0</span>/3000
+                        </p>
+                        <div class="error-msg">
+                            <span class="field-validation-valid" data-valmsg-for="Description" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+                <div class="step2-item">
+                <h3>
+                    更多图片
+                </h3>
+                <div class="images-container imgs1-5">
+                    <div class="images-inside clearfix">
+                        <ul class="images-list">
+                        	<li id="">
+	                            <div class="il-item">
+	                                <span style="height: 105px; width: 140px;" class="rounded"><img alt="" src=""></span>
+	                            </div>
+	                            <p class="il-caption"></p>
+	                            <p class="il-controls">
+	                                <a href="" class="il-remove"><span>删除</span></a> 
+	                                <a href="" class="il-edit"><span>编辑</span></a>
+	                            </p>
+                        	</li>
+                        </ul>
+                    </div>
+                    <div class="clearfix " id="add-image-container">
+	                    <!--<a href="#" class="medium-button addimages-button" id="adImage">
+	                	<span><b>更多图片</b></span></a>-->
+	                	<input name="file_upload2" id="file_upload2" value="">
+	                </div>
+                </div>
+                </div>
+                
+                <div class="step2-item">
+                	<h3>
+                        音频
+                    </h3>
+                	<div id="jquery_jplayer_1" class="jp-jplayer"></div>
+                	
+                	<div id="jp_container_1" class="jp-audio" style="width: 92%; margin: 10px 30px 30px 30px;">
+						<div class="jp-type-single">
+							<div class="jp-gui jp-interface" style="height: 90px;">
+								<ul class="jp-controls">
+									<li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
+									<li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
+									<li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
+									<li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
+									<li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
+									<li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
+								</ul>
+								<div class="jp-progress" style="width: 75%;">
+									<div class="jp-seek-bar">
+										<div class="jp-play-bar"></div>
+									</div>
+								</div>
+								<div class="jp-volume-bar" style="right: 30px;">
+									<div class="jp-volume-bar-value"></div>
+								</div>
+								<div class="jp-time-holder" style="width: 100%; left: 0px">
+									<div class="jp-current-time"></div>
+									<div class="jp-duration"></div>
+								</div>
+							</div>
+							<div class="jp-title">
+								<ul>
+									<li><%= songname %></li>
+								</ul>
+							</div>
+							<div class="jp-no-solution">
+								<span>Update Required</span>
+								To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
+							</div>
+						</div>
+					</div>
+                	<script type="text/javascript">
+					//<![CDATA[
+					$(document).ready(function(){
+					
+						$("#jquery_jplayer_1").jPlayer({
+							ready: function (event) {
+								$(this).jPlayer("setMedia", {
+									mp3:"<%= songmp3 %>"
+								}).jPlayer("play", <%= starttime %>);
+							},
+							swfPath: "javascripts",
+							supplied: "mp3",
+							preload: 'auto',
+							wmode: "window"
+						});
+					});
+					//]]>
+					</script>
+					<div style="padding:10px 0 50px 30px; "><input name="file_upload3" id="file_upload3" value="" style="left: 30px"></div>
+                </div>
+                
+            </div>
+        </div>
+ 		</div>
+	</form>
+</div>
+<footer>
+    <div id="footer-inside">
+        <a href="/create" class="f-exit" >退出</a>
+        <a href="#" class="f-del">删除</a>
+
+        <p class="back-next">
+            <a href="javascript:void(0);" class="large-button" id="footerbtn-discardchange" style=""><span>丢弃</span></a> 
+            <a href="javascript:void(0);" class="large-button-action" id="footerbtn-savechange" style=""><span>保存</span></a>
+            <a href="/step2" class="large-button-action large-button-action-next" style="display: none;"><span>2. 站点</span></a>
+        </p>
+    </div>
+</footer>
+</div>	
+</body>
+</html>

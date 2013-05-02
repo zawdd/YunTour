@@ -1,0 +1,133 @@
+
+var setUnloadWarning = function () {
+    $(window).bind('beforeunload', function () {
+        if (checkChanges())
+            return "You have unsaved changes";
+    });
+}
+
+var reorderSelectBoxFromList = function() {
+    var n;
+    $("#sortableCheckboxFromList").children().length > 0 && (n = $("#sortableCheckboxFromList").selectBox("value")),
+    $("#sortableCheckboxFromList").selectBox("destroy").empty(),
+    $("#sortableListToCheckbox li a").each(function(t) {//////////////////从sortableListToCheckbox加入到<option />
+        var i = $(this).data("name");
+        $("#sortableCheckboxFromList").append($("<option />").attr("value", $(this).attr("rel")).append(t + 1 + ". " + i)),
+        $("#sortableCheckboxFromList").children().filter("[value=" + n + "]").attr("selected", "selected"),
+        $(this).html(t + 1 + ". " + i)
+    }),
+    $("#sortableCheckboxFromList").selectBox().bind("open",
+    function() {})
+}
+
+var initBlackBar = function(){
+    if( $("#sortableCheckboxFromList").length > 0 && $("#sortableCheckboxFromList").children().length > 0 ){
+        var index = $("#sortableCheckboxFromList")[0].selectedIndex; 
+        if(index == 0){
+            $(".bb-prev").addClass("bb-disabled");
+        }else{
+            $(".bb-prev").removeClass("bb-disabled");
+        }
+
+        if(index == $("#sortableCheckboxFromList").children().length - 1){
+            $(".bb-next").addClass("bb-disabled");
+        }else{
+            $(".bb-next").removeClass("bb-disabled");
+        }
+
+        if($("#StopId").val() == 0){
+        }else{
+            $(".bb-delete").removeClass("bb-del-disabled");
+        }
+
+    }else{
+        $(".bb-prev, .bb-next").addClass("bb-disabled");
+        $(".bb-delete, .bb-reorder").addClass("bb-del-disabled");
+    }
+}
+
+function initReorder() {
+    reorderSelectBoxFromList(),
+    $("#sortableListToCheckbox").sortable({
+        stop: function() {}
+    }).disableSelection()
+}
+
+$(document).ready(function() {
+	$("#sortableCheckboxFromList").is(":hidden") || initReorder(),
+	
+	//黑色条，超过高度334就会跟随
+	$(window).scroll(function() {
+        $("#add-images-crop").dialog("option", "position", "center"),
+        $(window).scrollTop() > 334 ? ($(".black-bar-container").addClass("fixed").css("top", "-15px"), 
+        $(".step2-container").css("margin-top", "84px")) : ($(".black-bar-container").removeClass("fixed").css("top", "0"), 
+        $(".step2-container").css("margin-top", "-10px"))
+    }),
+    //删除图片
+    $(".il-remove").live("click", function() {
+        var t = $(this).parent().parent(),
+        n = $(t).find("img").data("position"),
+        i = $(".seek-marker");
+        return confirm(strMessageConfirmDeleteImage, "",
+        function() {
+            $.ajax({
+                url: baseUrl + "Stop/DeleteImage/",//////////////////////////设置参数
+                type: "POST",
+                async: !0,
+                data: {
+                    imageID: values[n].imageID
+                },
+                success: function(r) {
+                    if (r && r.success) return info(),
+                    $(t).empty(),
+                    $(i[n]).remove(),
+                    values.remove(n),
+                    checkNoImages(),
+                    reorder(),
+                    !1;
+                    info()
+                }
+            })
+        })}),
+        
+    $(".f-del").bind("click", function () {
+	 	confirm("真的要删除吗?", "确认", function () {
+	 		tours = [];
+	 		tours.push($("#lineId").val());
+	 		$.ajax({/////////////////////////////////////////POST到url然后，delete了这个路线，求接口
+                type: "POST",
+                url: baseUrl + "Delete",
+                traditional: true,
+                data: { 'listTour': tours },
+                success: function (result) {
+                    $(window).unbind('beforeunload');
+                    location.href = "/";
+                },
+                error: function () {
+                    info("Unexpected error");
+                    hideLoading();
+                }
+            });
+	 	});
+	 }),
+		 
+  	$("#footer-inside .f-exit").each(function (index, item) {
+        var redirection = $(item).attr("href");
+        $(item).attr("href", "");
+        $(item).click(function (e) {
+            if ($(".input-changed").length == 0) {
+                location = redirection;
+            } else {
+                saveOrDiscard("请选择保存还是放弃.",
+                function () {/////////////////////////saveHandler，点击保存
+                    $('#tour-form').trigger('submit');
+                },
+                function () {////////////////////////取消，然后redirect到f-exit的href
+                    $(window).unbind('beforeunload');
+                    location = redirection;
+                });
+            }
+            e.preventDefault();
+        });
+    });
+});

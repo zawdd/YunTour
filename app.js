@@ -17,8 +17,8 @@ var app = express();
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-//  app.set('views', __dirname + '/UI');
+//  app.set('views', __dirname + '/views');
+  app.set('views', __dirname + '/web');
   app.set('view engine', 'ejs');
 //  app.use(partials());
   app.use(express.favicon());
@@ -70,8 +70,8 @@ app.get('/createline', routes.createLine);
 app.post('/createline', routes.checkLogin);
 app.post('/createline', routes.doCreateLine);
 
-app.get('/browesdetail/:lineid', routes.browseDetail);
-app.get('/broweslist', routes.browseList);
+app.get('/browsedetail/:lineid', routes.browseDetail);
+app.get('/browselist', routes.browseList);
 
 app.get('/createstops/:lineid', routes.checkLogin);
 app.get('/createstops/:lineid', routes.createStops);
@@ -86,7 +86,16 @@ app.post('/signmap/:lineid', routes.checkLogin);
 app.post('/signmap/:lineid', routes.doSignMap);
 //web
 app.get('/step1', routes.step1);
-app.post('/step1', routes.doStep1);
+app.post('/step1', routes.step1Save);
+app.get('/step2', routes.step2);
+app.get('/step3', routes.step3);
+app.get('/create', routes.create);
+app.get('/detail', routes.detail);
+app.get('/browse', routes.browse);
+
+app.get('/remove', routes.remove);
+//app.post('/save', routes.save);
+app.post('/uploadhandler', routes.uploadifyhandler);
 //android
 app.get('/androidtest', routes.androidTest);
 

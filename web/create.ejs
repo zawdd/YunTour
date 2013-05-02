@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)https://studio.guidigo.com/browse-tours -->
+<html class="no-js" lang="en"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width">
+    <link href="./stylesheets/main.css" rel="stylesheet">
+    <link href="./stylesheets/step2-css.css" rel="stylesheet">
+
+    <script src="./javascripts/jquery.min.js"></script>
+    <script src="./javascripts/jquery.js"></script>
+    <script src="./javascripts/jqueryui.js"></script>
+    <script src="./javascripts/jquery.uploadify.min.js" type="text/javascript"></script>
+    <script src="./javascripts/jquery.jscrollpane.min.js"></script>
+    <script src="./javascripts/libs.js"></script>
+
+
+    <script type="text/javascript">
+        var baseUrl = "/";
+        var userID = "";
+	    var lang = "en";
+
+    </script>
+    
+    <script src="./javascripts/jquery.jcarousel.min.js" type="text/javascript"></script>
+    <script src="./javascripts/tourlist.js"></script>
+
+    <script type="text/javascript">
+        var strToursDeleteSuccess = "Tour(s) successfully deleted";var strToursDeleteLoading = "Deleting... Please wait";var strToursDeleteConfirm = "Do you really want to delete all the selected tours?";var strTourGridLoading = "Loading… Please wait";var strMessageUnexpectedError = '';;
+        var stopList = [];
+
+        var baseUrl = "/",
+        totalRowCount = 1,
+            currentPage = 1,
+            pageCount = 1,
+            savedParams = {
+                start: 0,
+                itemsPerPage: 10
+                };
+    </script>
+    <script type="text/javascript">
+
+        var containerContext, gridContext, navigationContext, pagerContext;
+        function enableButton() {
+            $(this).removeClass("page-disabled");
+        }
+        function disableButton() {
+            $(this).addClass("page-disabled");
+        }
+        var currentAjaxRequest = [];
+
+        function mycarousel_getItemHTML(item)
+        {
+            return '<a href="'+ item.Url +'" title="'+item.InfoTitle+'">' 
+                + '<img src="' + item.ImageUrl + '" data-src="' + baseUrl + 'Content/Images/preload.gif" class="thumb-img" id="thumb-img">'
+                + '<img src="' + baseUrl + 'Content/Images/preload.gif" style="position:absolute;top:14px;left:14px">'
+                + '<span class="s-num">'+item.Order+'</span> </a>';
+
+            //return '<img src="' + item.url + '" width="75" height="75" alt="' + item.url + '" />';
+        };
+
+        var qtip_stop_options = {
+            content: {
+                attr: 'title'
+            },
+            position: {
+                my: 'bottom center',  // Position my top left...
+                at: 'top center', // at the bottom right of...
+                adjust: {
+                    // x: -55
+                }
+            },
+            show: {
+                delay: 0
+            },
+            events: {
+                render: function (event, api) {
+                    // Grab the tip element
+                    var elem = api.elements.tip;
+                }
+            },
+            style: {
+                tip: {
+                    // offset: 20, // Give it 5px offset from the side of the tooltip
+                    width: 11,
+                    height: 7
+                }
+            }
+        };
+
+        var loadingStops = function() {
+            $(".stop-loading-div").each(function(index) {
+                var tourId = $(this).data("key");
+                var parent = $(".stop-thumbs", $(this).parent());
+                var xhr = $.ajax({
+                    url: baseUrl + "Home/StopList", 
+                    data: { id: tourId },
+                    async: true,
+                    mode: "get",
+                    success: function(rows){
+                        var loadedStops = 0;
+                        var toLoadStop = rows.length;
+                        if(toLoadStop == 0){
+                            $(".stop-loading-div", parent.parent()).hide();
+                            $(".stop-loading-div-overlay", parent.parent()).hide();
+                            return;
+                        }
+
+                        var mycarousel_itemList = rows.stops;
+
+                        var myCarousel = $('.stops-carousel', parent).jcarousel({
+                            visible: 5,
+                            scroll: 3,
+                            size: mycarousel_itemList.length,
+                            itemLoadCallback: function(carousel, state) {
+                                for (var i = carousel.first; i <= carousel.last; i++) {
+                                    if (carousel.has(i)) {
+                                        continue;
+                                    }
+
+                                    if (i > mycarousel_itemList.length) {
+                                        break;
+                                    }
+
+                                    carousel.add(i, mycarousel_getItemHTML(mycarousel_itemList[i-1]));
+                                    if( $(".stop-loading-div", parent.parent()).is(":visible")){
+                                        $("li a img",carousel.container).last().one("load",function () {
+                                            $(this).wrap(function () {
+                                                return '<span style="background-image:url(' + $(this).attr('src') + '); height: ' + $(this).height() + 'px; width: ' + $(this).width() + 'px;" class="smallrounded" />';
+                                            });
+
+                                            loadedStops++;
+                                         
+                                            if(loadedStops == $(this).closest(".stops-carousel").data("jcarousel").size() || loadedStops >= 5){
+                                                if(parent.is(":visible")){
+                                                    $(".stop-loading-div", parent.parent()).hide();
+                                                    $(".stop-loading-div-overlay", parent.parent()).hide();
+                                                }
+                                            }
+                                            $(this).unbind("load");
+                                        });
+                                    }
+
+                                }
+
+                                $('li a', carousel.container).qtip(qtip_stop_options);
+                                $("li a img",  carousel.container).wrap(function () {
+                                    if(!$(this).parent().hasClass("smallrounded"))
+                                        return '<span style="background-image:url(' + $(this).attr('src') + '); height: 60px; width: 60px;" class="smallrounded" />';
+                                });
+                            }
+
+                        });
+                    }
+                });
+
+                currentAjaxRequest.push(xhr);
+
+            });
+
+        };
+
+        var pagedLoadingStops = function(){
+            $(".stops-carousel").each(function(index, item){
+                var tourId = $(this).data("key");
+                var size = $(this).data("count");
+                var parent = $(this).closest(".stop-thumbs");
+
+                var myCarousel = $(this).jcarousel({
+                    visible: 5,
+                    scroll: 3,
+                    size: size,
+                    itemLoadCallback: function(carousel, state) {
+                        var first = carousel.first;
+                        while(carousel.has(first) && first < carousel.last){
+                            first ++;
+                        }
+                        if(first != 1 && first >= carousel.last)
+                            return;
+
+                        var xhr = $.ajax({
+                            url: baseUrl + "Home/PagedStopList", 
+                            data: { id: tourId, first: first, last:carousel.last },
+                            async: true,
+                            mode: "get",
+                            success: function(rows){
+                                for (var i = 0; i <= carousel.last - first; i++) {
+                                    var  index = i + first;
+                                    var stop = rows.stops[i];
+                                    if (carousel.has(i +  first)) {
+                                        continue;
+                                    }
+                                    var item = mycarousel_getItemHTML(stop);
+                     
+                                    carousel.add(index, item);
+                                }
+                                $('li a', carousel.container).qtip(qtip_stop_options);
+                                $("li a img.thumb-img",  carousel.container).wrap(function () {
+                                    if(!$(this).parent().hasClass("smallrounded"))
+                                        return '<span style="background-image:url(' + $(this).attr('src') + '); height: 60px; width: 60px; position:absolute;z-index:5" class="smallrounded" />';
+                                });
+                                $("li a img.thumb-img",  carousel.container).load(function(){
+                                    console.log("loaded");
+                                        
+                                });
+                            }
+                        });
+                        currentAjaxRequest.push(xhr);
+                    }
+                });
+            });
+        }
+
+        var scrollToTopPage = function() {
+            $('html, body').animate({
+                scrollTop: $(".main-tour").offset().top
+            }, 500);
+        };
+        var reloadGrid = function(params) {
+            if (params.start === undefined || (params.start >= 0 && params.start < totalRowCount)
+                //|| param.ignoreFilter == true
+                || savedParams.keyword != params.keyword
+                || savedParams.searchIn != params.searchIn
+                || savedParams.status != params.status
+                || savedParams.beginDate != params.beginDate
+                || savedParams.endDate != params.endDate
+                ) {
+                showLoading(strTourGridLoading);
+                $.extend(savedParams, params);
+                currentPage = Math.floor(savedParams.start / savedParams.itemsPerPage) + 1;
+                savedParams.start = (currentPage - 1) * savedParams.itemsPerPage;
+
+                for (var i in currentAjaxRequest) {
+                    currentAjaxRequest[i].abort();
+                }
+                //$(".tourlist-item").slideUp(function(){
+                //    $(this).remove();
+                //});
+
+                currentAjaxRequest = [];
+                $(".stops-carousel li a img").unbind("load");
+                return $.get(baseUrl + 'Home/GridData', savedParams).done(function (rows, status, xhr) {
+                    scrollToTopPage();
+                    gridContext.html(rows);
+                    $("a.page.ltf-selected").removeClass("ltf-selected");
+                    $("a.page[data-index='" + (currentPage - 1) + "']").addClass("ltf-selected");
+                    initGridEvent();
+
+                    totalRowCount = Math.floor(xhr.getResponseHeader('X-Total-Row-Count'));
+                    var firstItem = ((currentPage - 1) * savedParams.itemsPerPage) + 1;
+                    var last = currentPage * savedParams.itemsPerPage;
+                    last = last > totalRowCount ? totalRowCount : last;
+                    $(".pages-of").each(function (index, item) {
+                        $(item).html("<strong>" + firstItem + "-" + last + "</strong> of <strong>" + totalRowCount + "</strong>");
+                    });
+                    $(".ad-results").html("Found <strong>__COUNT__</strong> results".replace(/__COUNT__/, totalRowCount));
+                    if (totalRowCount == 0) {
+                        $(".no-results").show();
+                        $(".tourlist-move").hide();
+                    } else {
+                        $(".no-results").hide();
+                        $(".tourlist-move").show();
+                    }
+
+                    newPageCount = Math.ceil(totalRowCount / savedParams.itemsPerPage);
+                    if (pageCount > newPageCount) {
+                        for (var i = newPageCount; i < pageCount; i++) {
+                            //supprimer les pages en trop
+                            $("a.page[data-index='" + i + "']").remove();
+
+                        }
+                        pageCount = newPageCount;
+                    }
+
+                    if (currentPage === 1) {
+                        navigationContext.find('a.page-prev').each(disableButton);
+                    } else {
+                        navigationContext.find('a.page-prev').each(enableButton);
+                    }
+                    //debugger;
+                    if (currentPage === pageCount) {
+                        navigationContext.find('a.page-next').each(disableButton);
+                    } else {
+                        navigationContext.find('a.page-next').each(enableButton);
+                    }
+
+                    setRounded();
+                    setTimeout(function(){
+                        pagedLoadingStops();
+                    }, 500);
+
+                    $(".advanced-container").hide();
+                    $(".ad-search").removeClass('opened');
+                    //navigationContext = $('.tourlist-move');
+                    //pagerContext = $('.tourlist-pagination');
+                    //pagerContext.delegate('a.page', 'click', function (e) {
+                    //    var newPageNum = Number($(this).text());
+                    //    if (currentPage != newPageNum && newPageNum >= 1 && newPageNum <= pageCount) {
+                    //        $("a.page.ltf-selected").removeClass("active");
+                    //        $(this).addClass("ltf-selected");
+                    //        reloadGrid({ start: (newPageNum - 1) * savedParams.itemsPerPage });
+                    //    }
+                    //    e.preventDefault();
+                    //});
+
+                    //navigationContext.delegate('a.page-prev', 'click', function (e) {
+                    //    e.preventDefault();
+                    //    if(!$(this).hasClass("page-disabled"))
+                    //        reloadGrid({ start: savedParams.start - savedParams.itemsPerPage, ignoreFilter: true });
+                
+                    //});
+                    //navigationContext.delegate('a.page-next', 'click', function (e) {
+                    //    e.preventDefault();
+                    //    if(!$(this).hasClass("page-disabled"))
+                    //        reloadGrid({ start: savedParams.start + savedParams.itemsPerPage, ignoreFilter: true });
+                    //});
+
+                    hideLoading();
+                });
+            }
+            return $.Deferred().reject();
+        }
+
+
+        $(document).ready(function () {
+            $.ajaxSetup({ cache: false, async:true });
+
+            gridContext = $('#AjaxGrid');
+            navigationContext = $('.tourlist-move');
+            pagerContext = $('.tourlist-pagination');
+
+            $('a.page-prev').live('click', function (e) {
+                e.preventDefault();
+                if(!$(this).hasClass("page-disabled"))
+                    reloadGrid({ start: savedParams.start - savedParams.itemsPerPage, ignoreFilter: true });
+            });
+
+            $('a.page-next').live('click', function (e) {
+                e.preventDefault();
+                if(!$(this).hasClass("page-disabled"))
+                    reloadGrid({ start: savedParams.start + savedParams.itemsPerPage, ignoreFilter: true });
+            });
+
+            gridContext.delegate('.tlc-translate', 'click', function (e) {
+                var divParent = $(this).parent().parent().parent().parent();
+                var langs = divParent.data("lang");
+                var langArray = langs.toString().split(",");
+                selectedTourID = divParent.data("id");
+
+                var lang = divParent.parent().find(".label-lang").text();
+                $('.lang-label', '#translate-window').text(lang);
+                $("#trans-lang").children().removeAttr("disabled");
+                for (var i = 0; i < langArray.length; i++) {
+                    $("#trans-lang").children().filter('[value=' + langArray[i] + ']').attr("disabled", "disabled");
+                }
+
+                $("#trans-lang").selectBox("refresh");
+                $('#translate-window').lightbox_me({
+                    centered: true,
+                    closeSelector: ".close-window",
+                    overlayCSS: { background: 'black',
+                        opacity: .2
+                    },
+                    zIndex: 1036
+                });
+
+
+                e.preventDefault();
+            });
+            gridContext.delegate('.tlc-clone', 'click', function (e) {
+                showLoading("Duplicate, please wait");
+                $.ajax({
+                    type: "POST",
+                    url: baseUrl + "Tour/Clone",
+                    traditional: true,
+                    data: { 'encryptTourID': $(this).parent().parent().parent().parent().data("id") },
+                    success: function (result) {
+                        if (result.success) {
+                            info("The tour was successfully copied")
+                            reloadGrid({ start: 0 });
+                            //location.href = result.redirect;
+                        } else {
+                            info("Error");
+                        }
+                    },
+                    error: function () {
+                        info("Error");
+                    },
+                    complete: function () {
+                        hideLoading();
+                    }
+                });
+
+                e.preventDefault();
+            });
+            //delete link
+            gridContext.delegate('a.tlc-delete', 'click', function (e) {
+                var tours = [];
+                tours.push($(this).parent().parent().parent().parent().data("id"));
+                confirm("Do you really want to delete this tour?", "", function () {
+                    deleteTours(tours);
+                });
+                e.preventDefault();
+            });
+            $('a.page').live('click', function (e) {
+                var newPageNum = Number($(this).text());
+                if (currentPage != newPageNum && newPageNum >= 1 && newPageNum <= pageCount) {
+                    $("a.page.ltf-selected").removeClass("active");
+                    $(this).addClass("ltf-selected");
+                    reloadGrid({ start: (newPageNum - 1) * savedParams.itemsPerPage });
+                }
+                e.preventDefault();
+            });
+
+            $("#select-sortby").bind("change", function (e) {
+                var val = $("#select-sortby").children().filter(":selected").val();
+                if (val == "ModificationDate") {
+                    $("#select-sortdesc").val(1);
+                    $(".sblink").removeClass("sblink2");
+                } else {
+                    $("#select-sortdesc").val(0);
+                    $(".sblink").addClass("sblink2");
+                }
+
+                reorderBySelection();
+            });
+
+            $(".sblink").click(function () {
+                $(this).toggleClass("sblink2");
+                var sens = Number($("#select-sortdesc").val());
+                $("#select-sortdesc").val((sens + 1) % 2);
+                reorderBySelection();
+                return false;
+            });
+
+            navigationContext.find('a.refresh').click(function (e) {
+                reloadGrid({});
+                e.preventDefault();
+            });
+            
+            $("#tl-search").keypress(function (e) {
+                if (e.keyCode == 13) {
+                    var word = $("#tl-search").val();
+                    if (word.length > 0 && word.length < 3) {
+                        info("Your search must count at least 3 characters.");
+                        return;
+                    }
+                    showLoading("Searching, please wait");
+                    if ($(".advanced-container").is(":visible")) {
+                        advancedSearch();
+                    } else {
+                        reloadGrid({ start: 0, keyword: word, searchIn: 'all' });
+                    }
+                    //reloadGrid({ start: 0, keyword: word, searchIn: 'title' });
+                    e.preventDefault();
+                }
+            });
+
+            $(".ad-search-button").click(function (e) {
+                var word = $("#tl-search").val();
+                if (word.length > 0 && word.length < 3) {
+                    info("Your search must count at least 3 characters.");
+                    return;
+                }
+                advancedSearch();
+                e.preventDefault();
+            });
+            
+            setRounded();
+            pagedLoadingStops();
+
+            $("#trans-lang option").each(function() {
+                $(this).attr("label", $(this).text());
+            });
+        });
+
+        function advancedSearch() {
+            var word = $("#tl-search").val();
+            var searchIn = $.map($(".searchIn:checked"), function (a, b) { return $(a).val(); }).join(",");
+            var status = $.map($(".status:checked"), function (a, b) { return $(a).val(); }).join(",");
+            var beginDate = undefined;
+            var endDate = undefined;
+            if ($("input[type='radio']:checked", ".ad-cont").val() == "date-exact") {
+                if ($("#date0").val() == "Date: ") {
+                    info("Invalid date, please correct");
+                    return false;
+                }
+                beginDate = $("#date0").val();
+            }
+            if ($("input[type='radio']:checked", ".ad-cont").val() == "date-range") {
+                if ($("#date1").val() == "Begin: " || $("#date2").val() == "End: ") {
+                    info("Invalid date, please correct");
+                    return false;
+                }
+                beginDate = $("#date1").val();
+                endDate = $("#date2").val();
+            }
+            savedParams.beginDate = beginDate;
+            savedParams.endDate = endDate;
+
+            reloadGrid({ start: 0, keyword: word, searchIn: searchIn, status: status, beginDate: beginDate, endDate: endDate });
+        }
+
+        function reorderBySelection() {
+            var reloadParams = {
+                start: 0,
+                orderBy: $("#select-sortby").children().filter(":selected").val(),
+                desc: ($("#select-sortdesc").val() == "1")
+            };
+            reloadGrid(reloadParams).done(function () {
+
+            });
+        }
+
+    </script>
+
+<body>
+<!--[if lt IE 8]><p class=chromeframe>Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+<header id="home-header">
+    <div id="header-content">
+        <h1>
+        <a href="/">
+        	<img src="/images/yunyou.png" style="width: 168px"></a>
+        </h1>
+		<div id="sub-nav">
+			<ul class="subnav-links clearfix">
+				<li id="subnav-user">
+                    <a href="#" class="dropbtn">
+                        <em><span><%= user %></span></em>
+                    </a>
+                    <div class="subnav-dropdown" id="sn-user-dropdown">
+                        <span class="sn-user-email"></span>
+                        <ul class="sn-meta">                                    
+                            <li><a href="#" target="_blank">主页</a></li>
+                            <li><a href="#" target="_blank">设置</a></li>
+                        </ul>
+                        <ul>                                    
+                            <li><a href="#">退出帐号</a></li>
+                        </ul>
+                    </div>
+                </li>				
+			</ul>
+		</div>            
+    </div>
+</header>
+<!--！ end header //++++++++++++++++++++++++++++++++++++-->
+
+
+<div id="subheader">
+    <div id="subheader-inside" class="clearfix">
+        <ul>
+            <li class="active subheader-selected"><a href="/">线路</a></li>
+        </ul>
+        
+	    <p class="clearfix newtour-btn">
+	        <a href="/step1" class="medium-button-action"><span>创建新线路</span>
+	        </a>
+	    </p>
+    </div>
+</div>
+<!-- end #subheader //-->
+    
+<img src="./images/tl-controls.png" style="width:1px;height:1px">
+
+<div role="main" id="main" class="main-notour" style="display:none">
+    <div class="create-tour-arrow">
+        <strong>点击创建新路线</strong>
+        
+    </div>
+    <br class="cb">
+    <div class="no-tours clearfix">
+        还没有创建路线
+    </div>
+</div>
+<!-- end #main //-->
+
+<div role="main" id="main" class="main-tour" style="display:block">
+    <div class="tourlist-meta clearfix">
+        <h2 class="tourlist-title">
+            所有线路
+        </h2>
+            <div class="tourlist-move clearfix">
+        <p class="pages-of clearfix">
+            <strong>1-    1
+
+            </strong>of <strong>1</strong>
+        </p>
+
+        <p class="pages-ctrl clearfix">
+            <a href="" class="page-prev  page-disabled ir">previous</a>
+            <a href="" class="page-next ir page-disabled score-1875 endless-pages-found-next-link">next</a>
+        </p>
+    </div>
+        <!-- end .tourlist-move //-->
+</div>
+    <!-- end .tourlist-meta //-->
+    <div class="tourlist-controls clearfix">
+        <div class="select-del select-del-rev">
+            <a href="" class="medium-button checkall-button"><span><em>
+                <input type="checkbox" name="checkall" value="" id="checkall"></em></span></a>
+            <a href="" class="medium-button medium-disabled delete-button"><span>
+            	<b>删除</b>
+            </span></a>
+        </div>
+    </div>
+    <!-- end .tourlist-controls //-->
+    <div class="no-tours clearfix  no-results" style="display: none">
+        没有找到路线
+    </div>
+<% lines.forEach(function(line, index) { %>	
+<div id="AjaxGrid">
+    <div class="tourlist-item" id="tour-block-iVrsCPFXsHU">
+	    
+    <input type="checkbox" name="tlitem" class="tlitem tour-checkbox" value="iVrsCPFXsHU">
+    <div class="tlimg">
+	    <a href="/detail?lineid=<%= line._id %>">
+	<img id="thumb-img" src=<%= line.coverThumbnail %> height=128 width=128>
+        </a>
+    </div>
+    <p class="tl-place">
+    <%= line.mapAddress %> 
+    </p>
+    <h3 class="tl-title">
+	    <a href="/detail?lineid=<%= line._id %>"><%= line.lineName %></a>
+    </h3>
+    <p class="tl-author">
+        作者 <%= line.author %>
+    </p>
+    <p class="tl-lang has-lang">
+        语言 <span class="label-lang">中文</span>
+    </p>
+    <div class="tl-change clearfix">
+        <p class="l-change">
+	创建日期 <span><%= line.createDate.getFullYear() %>/<%= line.createDate.getMonth() %>/<%= line.createDate.getDate() %></span>
+        </p>
+	<!--<span class="lab-draft lab">完成</span> -->
+    </div>
+
+    <p class="stops-num">
+    <%= Object.keys(line.stops).length %> 个站点
+    </p>
+    <div class="stop-thumbs">
+        <div class="stop-thumbs-show">
+            <div class=" jcarousel-skin-guidigo">
+            	<div class="jcarousel-container jcarousel-container-horizontal" style="position: relative; display: block;">
+            		<div class="jcarousel-clip jcarousel-clip-horizontal" style="position: relative;">
+				<ul class="stops-carousel jcarousel-list jcarousel-list-horizontal" data-count= <%= Object.keys(line.stops).length %> data-key="iVrsCPFXsHU" style="overflow: hidden; position: relative; top: 0px; margin: 0px; padding: 0px; left: 0px; width: 372px;">
+					<% line.stops.forEach(function(stop, index) { %>
+					<li class="jcarousel-item jcarousel-item-horizontal jcarousel-item-1 jcarousel-item-1-horizontal" style="float: left; list-style: none; width: 62px;" jcarouselindex="1">
+						
+					<a href="/detail?lineid=<%= line._id %>" oldtitle="&lt;b&gt;北京&lt;/b&gt;&lt;br&gt;&lt;em&gt;3&lt;/em&gt; images, &lt;em&gt;00:12&lt;/em&gt; audio, &lt;em&gt;in sync&lt;/em&gt;">
+						
+							<img src=<%= stop.stopThumbnail %>  width=60 height=60 >
+							<span class="s-num"><%= stop.num %></span>
+							  
+						</a>
+					</li>
+					<% }) %>	
+				</ul>
+			</div>
+					       
+						  
+            <div class="jcarousel-prev jcarousel-prev-horizontal jcarousel-prev-disabled jcarousel-prev-disabled-horizontal" style="display: block;" disabled="disabled"></div>
+	    <div class="jcarousel-next jcarousel-next-horizontal jcarousel-next-disabled jcarousel-next-disabled-horizontal" style="display: block;" disabled="disabled"></div>
+		</div>
+	    </div>
+        </div>
+    </div>
+
+
+    <!-- end .stop-thumbs //-->
+    <div class="tl-controls-container" data-lang="zh" data-id="iVrsCPFXsHU">
+        <div class="tl-controls">
+            <ul>
+                <li class="tlc-first"><a class="tlc-edit" href="">编辑</a></li>
+                <li><a href="" class="tlc-clone">复制</a></li>
+                <li><a href="" class="tlc-delete">删除</a></li>
+            </ul>
+        </div>
+	<!-- end .tl-controls //-->	
+    </div>
+    <!-- end .tl-controls-container //-->
+  	
+</div>
+<!-- end .tourlist-item //-->
+    </div>
+
+    <% }) %>
+    <fieldset class="allitems">
+    <div class="tourlist-meta2">
+        <div class="tourlist-pagination clearfix">
+		<ul><li><a class="ltf-disabled page" data-index="0"><%= Object.keys(lines).length %></a></li></ul>
+        </div>
+        
+        <div class="tourlist-move clearfix">
+        <p class="pages-of clearfix">
+            <strong>1-    1
+
+            </strong>of <strong>1</strong>
+        </p>
+
+        <p class="pages-ctrl clearfix">
+            <a href="" class="page-prev  page-disabled ir">previous</a>
+
+            <a href="" class="page-next ir page-disabled score-1875">next</a>
+        </p>
+        </div>
+
+        <!-- end .tourlist-move //-->
+    </div>
+    </fieldset>
+</div>
+
+<!-- end #main //-->
+
+
+    <script type="text/javascript">
+    var guidigo = guidigo || {};
+    guidigo.alert_popup = null;
+    guidigo.last_focus = null;
+    guidigo.alert_queue = [];
+
+    function quota_alert(message) {
+        var popup = $("#quota-alert-js-window");
+        popup.find("#text").html(message);
+        popup.lightbox_me({
+            centered: true,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2,
+                zIndex: 9998
+            },
+            zIndex: 9999,
+            onClose: function () {
+            }
+        });
+
+    }
+
+    function alert(message, title) {
+        if (guidigo.alert_popup != null) {
+            guidigo.alert_queue.push({ type: "alert", message: message, title: title });
+            return;
+        }
+
+        guidigo.last_focus = $("input, textarea").filter(":focus");
+        guidigo.last_focus.trigger("blur");
+
+        guidigo.show_alert_popup(message, title);
+
+        $(document).bind("keyup.popup", function (e) {
+            if (e.keyCode == 13) {
+                if (guidigo.alert_popup) {
+                    guidigo.alert_popup.trigger("close");
+                    if (guidigo.last_focus) {
+                        guidigo.last_focus.trigger("focus");
+                        guidigo.last_focus = null;
+                    }
+                }
+            }
+        });
+    }
+
+    guidigo.show_next = function () {
+        guidigo.alert_queue.reverse();
+        var next = guidigo.alert_queue.pop();
+        guidigo.alert_queue.reverse();
+        switch (next.type) {
+            case "alert":
+            default:
+                guidigo.show_alert_popup(next.message, next.title);
+                break;
+        }
+    };
+
+    guidigo.show_alert_popup = function (message, title) {
+        var popup = $("#alert-js-window");
+
+        popup.find("#title").html(title);
+        popup.find("#text").html(message);
+        guidigo.alert_popup = popup.lightbox_me({
+            centered: true,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2,
+                zIndex: 9998
+            },
+            zIndex: 9999,
+            onClose: function () {
+                if (guidigo.alert_queue.length == 0) {
+                    $(document).unbind("keyup.popup");
+                    guidigo.alert_popup = null;
+                    return;
+                }
+
+                guidigo.show_next();
+
+            }
+        });
+
+    }
+
+    guidigo.show_confirm_popup = function (message, title, okHandler, cancelHandler) {
+
+    }
+
+    var loadingBox;
+    var slc;
+    var closeOnLoad = false;
+    function hideLoading() {
+        slc = true;
+        $(".loading-msg-container").fadeOut();
+    }
+    function showLoading(message) {
+        slc = false;
+        $(".loading-msg-container").fadeIn(function () {
+            if (slc)
+                setTimeout(function () {
+                    $(".loading-msg-container").fadeOut();
+                }, 100);
+        });
+        return false;
+    }
+
+    function confirm(message, title, okHandler, cancelHandler) {
+        title = title ? title : 'Confirmation';
+        var popup = $("#confirm-js-window");
+
+        popup.find("#title").html(title);
+        popup.find("#text").html(message);
+
+        var okButton = popup.find("#button-ok");
+        okButton.unbind("click");
+        okButton.bind("click", function (e) {
+            okHandler();
+            popup.trigger("close");
+            e.preventDefault();
+        })
+
+        var cancelButton = popup.find("#button-cancel");
+        cancelButton.unbind("click");
+        if (cancelHandler) {
+            cancelButton.bind("click", function (e) { cancelHandler(); e.preventDefault(); })
+        }
+        popup.lightbox_me({
+            centered: true,
+            closeClick: false,
+            closeEsc: false,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2
+            },
+            zIndex: 9999
+        });
+    }
+    function info(message, time) {
+        time = time ? time : 4000;
+        var popup = $("#info-js-container");
+        popup.find("#message").html(message);
+
+        popup.fadeIn();
+        setTimeout(function () {
+            popup.fadeOut('fast');
+        }, time);
+        return false;
+    }
+
+    var saveDiscaedPopup;
+    var action = "";
+    function saveOrDiscard(message, saveHandler, discardHandler, closeHandler) {
+        var popup = $("#changes-window").clone();
+        popup.find("#text").html(message);
+
+        var okButton = popup.find("#button-save");
+        okButton.unbind("click");
+        okButton.bind("click", function (e) {
+            saveHandler();
+            action = "saving";
+            popup.trigger("close");
+            e.preventDefault();
+        })
+
+        var cancelButton = popup.find("#button-discard");
+        cancelButton.unbind("click");
+
+        cancelButton.bind("click", function (e) {
+            action = "canceling";
+            if (discardHandler)
+                discardHandler();
+            popup.trigger("close");
+            e.preventDefault();
+        });
+        popup.lightbox_me({
+            centered: true,
+            closeClick: false,
+            closeSelector: ".close-window",
+            overlayCSS: {
+                background: 'black',
+                opacity: .2
+            },
+            destroyOnClose: true,
+            onLoad: function () {
+                action = "";
+            },
+            onClose: function () {
+                if (action != "saving" && action != "canceling" && typeof closeHandler != 'undefined') {
+
+                    closeHandler();
+                }
+            },
+            zIndex: 9999
+        });
+    }
+
+    function setLoadingHeight() {
+
+        $loadingc = $('.loading-msg-container');
+        if ($(window).height() < $(document).height()) {
+            $loadingc.css({ height: $(document).height() + 'px' });
+        } else {
+            $loadingc.css({ height: '100%' });
+            //if (ie6) {
+            //    $('html,body').css('height', '100%');
+            //} // ie6 hack for height: 100%; TODO: handle this in IE7
+        }
+    }
+    $(function () {
+        $(window).resize(setLoadingHeight);
+
+    });
+
+</script>
+<div class="loading-msg-container dn">
+
+    <div class="loading-msg">
+        <img src="./images/working.gif" alt="">
+        Working…
+
+    </div>
+
+</div>
+
+<div class="lightbox-window lightbox-changes dn" id="confirm-js-window">
+    <div class="lightbox-window-inner">
+        <h3 id="title" class="lightbox-title"></h3>
+        <p class="lb-stop lb-center" id="text">
+            Do you want to delete stop 03. Theatre of Pompey/Da Pancrazio. (this action cannot
+            be undone)
+        </p>
+        <div class="del-ctrl clearfix">
+            <div>
+                <div>
+                    <a href="https://studio.guidigo.com/browse-tours#" class="medium-button close-window" id="button-ok"><span>OK</span></a>
+                    <a href="https://studio.guidigo.com/browse-tours#" class="medium-button-action close-window" id="button-cancel"><span>Cancel</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end lightbox-window-inner //-->
+</div>
+<!-- end lightbox-window //-->
+<div class="lightbox-window lightbox-changes dn" id="alert-js-window">
+    <div class="lightbox-window-inner">
+        <h3 id="title" class="lightbox-title"></h3>
+        <p class="lb-stop lb-center" id="text">
+        </p>
+        <div class="del-ctrl clearfix">
+            <div>
+                <div>
+                    <a href="https://studio.guidigo.com/browse-tours#" class="medium-button medium-button-action close-window" id="button-ok"><span>
+                        OK</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end lightbox-window-inner //-->
+</div>
+
+
+<div class="lightbox-window lightbox-changes dn" id="quota-alert-js-window">
+    <div class="lightbox-window-inner">
+        <h3 id="title" class="lightbox-title">Plan Limit Reached</h3>
+        <p class="lb-stop lb-center">
+            Sorry, this tour can't be published with your current plan because:
+            <br>
+            <br>
+            <span class="lb-stop lb-center" id="text"></span>
+            <br>
+            We advise you to <a href="http://www.guidigo.com/pricing">upgrade your account.</a>
+        </p>
+
+
+        <div class="del-ctrl clearfix">
+            <div>
+                <div>
+                    <a href="https://studio.guidigo.com/browse-tours#" class="medium-button medium-button-action close-window" id="button-ok"><span>
+                        OK</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end lightbox-window-inner //-->
+</div>
+
+<!-- end lightbox-window //-->
+<div class="lightbox-window lightbox-loading dn" id="loading-js-window">
+    <div class="lightbox-window-inner">
+        <p class="lb-center">
+            <img src="./images/preload.gif"><br>
+            <span id="text">Working…</span>
+        </p>
+    </div>
+    <!-- end lightbox-window-inner //-->
+</div>
+<!-- end lightbox-window //-->
+
+<!-- end lightbox-window //-->
+<div class="alert-box-container" id="info-js-container">
+    <div class="alert-box" id="message">
+        If notification message is very long i think its ok for it to go in two or more
+        rows like this.
+    </div>
+</div>
+<div class="lightbox-window lightbox-changes dn" id="changes-window">
+    <div class="lightbox-window-inner">
+        <h3 class="lightbox-title lightbox-title-left">
+            You have unsaved changes <a href="https://studio.guidigo.com/browse-tours#" class="close-lightbox close-window ir">close</a>
+        </h3>
+        <p class="lb-stop" id="text">
+            Please save or discard your changes to continue.
+        </p>
+        <div class="changes-ctrl clearfix">
+            <a href="https://studio.guidigo.com/browse-tours#" class="medium-button" id="button-discard"><span>Discard</span></a>
+            <a href="https://studio.guidigo.com/browse-tours#" class="medium-button-action" id="button-save"><span>Save</span></a>
+        </div>
+    </div>
+    <!-- end lightbox-window-inner //-->
+</div>
+<!-- end lightbox-window //-->
+
+</body></html>
