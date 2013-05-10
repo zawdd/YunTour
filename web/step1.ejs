@@ -31,18 +31,18 @@
     <div id="header-content">
         <h1>
         <a href="/">
-            <img src="/images/yunyou.png" style="width: 168px"></a>
+            <img src="/images/yunyou2.png" style="width: 168px"></a>
         </h1>
         <div id="sub-nav">
             <ul class="subnav-links clearfix">
                 <li id="subnav-user">
                     <a href="#" class="dropbtn">
-                        <em><span><%= user %></span></em>
+                        <em><span><%= user.userEmail %></span></em>
                     </a>
                     <div class="subnav-dropdown" id="sn-user-dropdown">
                         <span class="sn-user-email"></span>
                         <ul class="sn-meta">                                    
-                            <li><a href="/home?user=<%= user %>" target="_blank">主页设置</a></li>
+                            <li><a href="/" target="_blank">主页设置</a></li>
                         </ul>
                         <ul>                                    
                             <li><a href="/">退出帐号</a></li>
@@ -53,7 +53,6 @@
         </div>            
     </div>
 </header>
-
 <div id="subheader-steps">
     <div id="page-title">
         <ul>
@@ -91,9 +90,9 @@
 </div>
 <!--！ end subheader //++++++++++++++++++++++++++++++++++++-->
 
-<form id="tour-form" method="post" action="/lineInfoHandler">
-    <input id="lineId" name="lineId" type="hidden" value="<%= lineId%>">
-    <input id="user" name="user" type="hidden" value="<%= user%>">
+<form id="tour-form" method="post" action="/step1">
+
+    <input id="user" name="user" type="hidden" value="<%= user.userEmail%>">
     <div id="main" class="step-container">  
     <h2 class="steps-title">1. 线路概况</h2>
     <div class="steps-desc">留下深刻的第一印象...</div>
@@ -106,7 +105,8 @@
             </h3>
             <div class="cover-thumb" >
                 <div class="cover-contain" style="background-image:url()">
-                    <img src="" id="cover-img">
+			<img src="" id="cover-img" style="width: 179px">
+			<input value="" id="coverThumbnail" name="coverThumbnail" type="hidden"  >
                 </div>
             </div>
             <input name="file_upload" id="file_upload" class="track-change" data-val="true" data-val-required="必须填写" value="">
@@ -199,7 +199,7 @@
             </div>
             <!-- end .sortable2-container //-->
         </div>
-        <input id="topics" name="topics" class="track-change" data-val="true" data-val-errorholder="#sortable1" data-val-required="至少选择一种主题" type="hidden" value="1,2">
+        <input id="topics" name="topics" class="track-change" data-val="true" data-val-errorholder="#sortable1" data-val-required="至少选择一种主题" type="hidden" value="">
         <div class="error-msg">
             <span class="field-validation-valid" data-valmsg-for="InlineTopics" data-valmsg-replace="true"></span>
         </div>
@@ -215,7 +215,7 @@
         <p class="back-next">
             <a href="javascript:void(0);" class="large-button" id="footerbtn-discardchange" style=""><span>丢弃</span></a> 
             <a href="javascript:void(0);" class="large-button-action" id="footerbtn-savechange" style=""><span>保存</span></a>
-            <a href="/step2" class="large-button-action large-button-action-next" style="display: none;"><span>2. 站点</span></a>
+
         </p>
     </div>
 </footer>
@@ -229,7 +229,7 @@
         <div class="del-ctrl clearfix">
             <div>
                 <div>
-                    <a href="#" class="medium-button close-window" id="button-ok"><span>OK</span></a>
+                    <a href="/remove" class="medium-button close-window" id="button-ok"><span>OK</span></a>
                     <a href="#" class="medium-button-action close-window" id="button-cancel"><span>Cancel</span></a>
                 </div>
             </div>

@@ -532,11 +532,11 @@
                     <div class="subnav-dropdown" id="sn-user-dropdown">
                         <span class="sn-user-email"></span>
                         <ul class="sn-meta">                                    
-                            <li><a href="#" target="_blank">主页</a></li>
+                            <li><a href="/" target="_blank">主页</a></li>
                             <li><a href="#" target="_blank">设置</a></li>
                         </ul>
                         <ul>                                    
-                            <li><a href="#">退出帐号</a></li>
+                            <li><a href="/logout">退出帐号</a></li>
                         </ul>
                     </div>
                 </li>				
@@ -609,9 +609,8 @@
         没有找到路线
     </div>
 <% lines.forEach(function(line, index) { %>	
-    <div id="AjaxGrid">
-
-	    <div class="tourlist-item" id="tour-block-iVrsCPFXsHU">
+<div id="AjaxGrid">
+    <div class="tourlist-item" id="tour-block-iVrsCPFXsHU">
 	    
     <input type="checkbox" name="tlitem" class="tlitem tour-checkbox" value="iVrsCPFXsHU">
     <div class="tlimg">

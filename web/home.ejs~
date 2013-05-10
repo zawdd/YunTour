@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title><%= title %></title>
+    <link href="/stylesheets/main-css.css" rel="stylesheet">
+    <link href="/stylesheets/settings.css" rel="stylesheet">
+    <link rel="stylesheet" href="./stylesheets/uploadify.css">
+    
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/libs.js"></script>
+	<script src="/javascripts/jqueryui.js"></script>
+    <script src="./javascripts/jquery.uploadify.min.js" type="text/javascript"></script>
+    <script src="/javascripts/setting1.js"></script>
+
+
+    <script type="text/javascript">
+
+        var baseUrl = "/", 
+        userID = "";
+        $(function () {
+        	$("#save-cancel").click(function () {
+                $("#personal-form")[0].reset();
+                resetForm();
+            });
+        });
+
+    </script>
+
+</head>
+<body>
+    <header id="home-header">
+        <div id="header-content">
+            <h1>
+            <a href="/">
+            	<img src="/images/yunyou2.png" style="width: 168px"></a>
+            </h1>
+            <nav id="main-nav">
+                <ul class="clearfix">
+                    <li class=""><a href="/browse">观看线路</a></li>
+                    <li class=""><a href="/create">创建线路</a></li>
+                </ul>
+            </nav>
+          
+        </div>
+    </header>
+    <!--！ end #header -->
+    
+
+<div id="main" role="main" class="clearfix" style="margin: 10px auto;">
+
+<script type="text/ecmascript">
+    var strMessageUnsavedChange = "You have unsaved changes";;
+</script>
+
+<div class="pagewindow pw-billing-card pw-personal">
+
+<form id="personal-form" action="/home" method="post">
+	<input data-val="true" data-val-required="The UserID field is required." id="UserID" name="UserID" type="hidden" value="50c1d459-a59c-4a95-87ea-b6092279386b">
+	<input data-val="true" data-val-number="The field ProfileID must be a number." id="ProfileID" name="ProfileID" type="hidden" value="4">
+	<input data-val="true" data-val-number="The field PlanID must be a number." data-val-required="The PlanID field is required." id="PlanID" name="PlanID" type="hidden" value="1">            
+	<h3 class="bill-title"><%= title %></h3>
+        <div class="clearfix">
+            <div class="billing-info">
+                <fieldset class="bl-form-set clearfix">
+                    <div class="pers-image">
+                        <label>个性图像</label>
+			<div class="personal-image not-empty" id="image-thumb" style="background-repeat:no-repeat; background-image:url();">
+				<img id="coverimg" name="coverimg" src="" width=150 height=150>
+				<input value="" id="userimage" name="userimage" type="hidden"  >
+                        </div>
+                    </div>
+                    <!-- .pers-image -->
+                    <input class="track-change" id="Photo" name="Photo" type="hidden" value="imported19272f95-6172-41aa-ba8e-329ae1071990thumb.jpg">
+                    <div class="pers-info">
+                        <label for="pers-name">
+                            <em class="star">*</em>
+                            名字
+                        </label>
+                        <input class="bl-field forcounter track-change" data-val="true" data-val-length="type between 0 and 18 characters" data-val-length-max="18" data-val-required="compulsory field" id="DisplayName" maxlength="18" name="username" placeholder="your display name" type="text" value="FangX">
+                        <p class="charleft"><span>5</span>/18</p>
+
+                        <div class="error-msg error-msg-yourname">
+                            <span class="field-validation-valid" data-valmsg-for="DisplayName" data-valmsg-replace="true"></span>
+                        </div>
+
+                        <div class="pers-country-city">
+
+                        </div>
+                        <!-- .pers-country-city -->
+                        <div class="error-msg">
+                            <span class="field-validation-valid" data-valmsg-for="CountryID" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="clearfix">
+                       		<input name="file_upload" id="file_upload" value="" style="left: 30px">
+                        </div>
+                        <script type="text/javascript">
+                        $(function(){
+                        	$("#file_upload").uploadify({   
+						        'swf' : '/uploadify.swf',
+						        'uploader' : '/uploadhandler',
+						        'fileTypeExts' : '*.gif; *.jpg; *.png',
+						        'buttonText' : '请选择图片',
+						        'removeCompleted' : false,
+						        'multi' : true,
+						        "onUploadSuccess":function(file, data, response){ /////////////////////////////请在onComplete函数里将cover-img修改
+							$("#cover-img").attr("style", "background-repeat:no-repeat; background-image:url(" + JSON.parse(data).uploadFileName + ");");
+							$("#userimage").attr('value', JSON.parse(data).uploadFileName);
+							$("#coverimg").attr('src', JSON.parse(data).uploadFileName);
+							}
+						    });
+                        });
+                        </script>
+                    </div>
+                    <!-- .pers-info -->
+                </fieldset>
+
+                <div class="pers-bio">
+                    <fieldset class="bl-form-set clearfix">
+                        <label for="pers-shortbio">
+                            <em class="star">*</em>
+                            短描述
+                        </label>
+                        <input class="bl-field forcounter has-suggestion track-change" data-val="true" data-val-length="type between 0 and 50 characters" data-val-length-max="50" data-val-required="compulsory field" data_suggestion="Describe yourself briefly." id="usershort" maxlength="50" name="usershort" placeholder="Enter short bio" type="text" value="I&#39;m a shuage">
+                        <p class="charleft"><span>12</span>/50</p>
+
+                        <div class="error-msg"><span class="field-validation-valid" data-valmsg-for="ShortPresentation" data-valmsg-replace="true"></span></div>
+                    </fieldset>
+
+                    <fieldset class="bl-form-set clearfix">
+                        <label for="pers-longbio">
+                            长描述
+                        </label>
+                        <textarea class="txtarea forcounter has-suggestion elastic track-change" cols="20" data-maxchars="1000" data-suggestion="Visitors want to know more about who created this tour!" data-val="true" data-val-length="type between 0 and 1000 characters" data-val-length-max="1000" id="Presentation" name="Presentation" placeholder="Long bio here" rows="2"></textarea>
+                        <p class="charleft"><span>0</span>/1000</p>
+                        <div class="error-msg"><span class="field-validation-valid" data-valmsg-for="Presentation" data-valmsg-replace="true"></span></div>
+                    </fieldset>
+
+                </div>
+                <!-- .bl-pers-bio -->
+            </div>
+            <!-- .billing-info -->
+
+        </div>
+        <!-- billing and payment -->
+        <fieldset class="form-foot">
+            <input type="submit" value="保存" class="med-btn off-btn" id="save-submit">
+            <input type="button" value="取消" class="med-btn" id="save-cancel">
+            
+        </fieldset>
+</form>
+    </div>
+    <!-- .pw-billing -->
+
+
+</div>
+<!--! end #main -->
+
+
+    <script type="text/javascript">
+        $.validator.setDefaults({
+            ignore: '.novalid',
+            highlight: function (element, errorClass) {
+                if (!$(element).data("val-mustbechecked")) {
+                    $(element).parent().addClass("si-not-validated");
+                    $(element).parent().removeClass('si-validated');
+
+                    var attr = $(element).attr('maxlength');
+                    if (typeof attr !== 'undefined' && attr !== false) {
+                        $(element).parent().children('.charleft').hide();
+                    }
+                }
+            },
+            unhighlight: function (element, errorClass) {
+                if ($(element).data("val") && !$(element).data("val-mustbechecked")) {
+                    $(element).parent().removeClass("si-not-validated");
+                    var attr = $(element).attr('maxlength');
+                    if (typeof attr !== 'undefined' && attr !== false) {
+                        $(element).parent().children('.charleft').show();
+                    }
+                }
+            }
+        });
+        
+    </script>
+	
+</body>
+</html>

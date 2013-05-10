@@ -136,8 +136,11 @@ $(document).ready(function() {
         'buttonText' : '请选择图片',
         'removeCompleted' : false,
         'multi' : true,
-        onComplete:function(n,t,i,r){ /////////////////////////////请在onComplete函数里将cover-img修改
-        	$("#cover-img").attr("src", "/photo"+r);
+        'onUploadSuccess' : function(file, data, response){ /////////////////////////////请在onComplete函数里将cover-img修改
+        var imgPath = JSON.parse(data).uploadFileName;
+		$("#thumb-container").attr("style", "background-repeat:no-repeat; background-image:url("+ imgPath +"); background-size: 144px; background-position:center;");
+		$(".images-list li:first").find("img").attr("src", imgPath);
+		$("#stopthumbnail").attr("value", imgPath);
         }
     });
     
@@ -148,9 +151,28 @@ $(document).ready(function() {
         'fileTypeExts' : '*.gif; *.jpg; *.png',
         'buttonText' : '请选择图片',
         'removeCompleted' : false,
-        'multi' : true
+        'multi' : true,
+        'itemTemplate' : '<div></div>',
+		'onUploadSuccess' : function(file, data, response) { /////////////////////////////请在onComplete函数里将cover-img修改
+        	var imgPath = JSON.parse(data).uploadFileName;
+        	var cloneLi = $(".images-list li:first").clone();
+        	cloneLi.find("img").attr("src", imgPath);
+        	$(".images-list").append(cloneLi);
+		var str = $("#stopimages").val();
+		str = str + imgPath + ",";
+	        //英文的逗号	
+		$("#stopimages").attr("value", str);
+		
+	}	    
     });
-    
+    $("#footerbtn-savechange").bind("click", function (e) {
+	    
+       //$(window).unbind('beforeunload');//////////////清除之前为了track-change，会重新bind
+       $('#stop-form').trigger('submit');/////////////trigger(submit)
+       //toggleFooterButton();//////////////////////////底部button变
+       //e.preventDefault();
+    });
+
     $("#file_upload3").uploadify({   
         'swf' : '/uploadify.swf',
         'uploader' : '/uploadhandler',
@@ -158,9 +180,23 @@ $(document).ready(function() {
         'buttonText' : '请选择mp3	',
         'removeCompleted' : false,
         'multi' : true,
-        onComplete:function(n,t,i,r){ /////////////////////////////请在onComplete函数里将cover-img修改
-        	
+		'onUploadSuccess' : function(file, data, response) { /////////////////////////////请在onComplete函数里将cover-img修改
+        	var audPath = JSON.parse(data).uploadFileName;
+        	$("#jquery_jplayer_1").jPlayer("destroy");
+        	$("#jquery_jplayer_1").jPlayer({
+				 ready: function (event) {
+					 $(this).jPlayer("setMedia", {
+					 	mp3:audPath
+					 }).jPlayer("play", 0);
+				 },
+				 swfPath: "javascripts",
+				 supplied: "mp3",
+				 preload: 'auto',
+				 wmode: "window"
+			 });
+		$("#stopaudio").attr("value", audPath);
         }
+        
     });
 	
     $(window).scroll(function() {

@@ -480,8 +480,8 @@ function(n) {
             },
             n(".tourslide-title span").empty().html(n("span", n(r[t])).html()),
             n(".tour-player-container").slideUp(),
-            myPlayer && myPlayer.jPlayer("stop"),
-            self.xhr != null && self.xhr.abort(),
+            myPlayer && myPlayer.jPlayer("stop")
+            /*self.xhr != null && self.xhr.abort(),
             self.xhr = n.ajax({
                 url: baseUrl + "Tour/Stop/",
                 type: "get",
@@ -498,7 +498,7 @@ function(n) {
                     n(".ellipsis").ellipsis(),
                     t.stop.IsStopTest ? (t.json.use_audioplayer && (initPlayerAudio(n.fn.media.api.json.audiofile), n(".jp-duration").html(n.jPlayer.convertTime(t.json.duration))), t.json.use_thumbnails ? n(".tour-img-thumbs").css("display", "block") : n(".tour-img-thumbs").css("display", "none"), n.fn.media.api.createSlideShow(t.json)) : myPlayer && (myPlayer.jPlayer("destroy"), myPlayer = null)
                 }
-            })
+            })*/
         },
         observe: function(t) {
             if (n.fn.media.api.json && n.fn.media.api.json.synced) for (i in n.fn.media.api.json.slides) n.fn.media.api.json.slides[i].timespan == t && parseInt(t) > 0 && n.fn.media.api.slideShowSkipTo(n.fn.media.api.json.slides[i].imageID)
@@ -1379,7 +1379,9 @@ $(document).ready(function() {
     }),
     $(".tourslide-link").live("click",
     function() {
-        return $(".ts-show-container .ts-show").is(":visible") && ($(".tour-player-container").slideDown(), $(".tdesc-inside").jScrollPane(), $(".tdesc-inside").data("jsp").scrollTo(0, 0), $.fn.media.api.calculateMiniMargin("right")),
+        return $(".ts-show-container .ts-show").is(":visible") && ($(".tour-player-container:eq("+no+")").slideDown(), 
+        $(".tdesc-inside").jScrollPane(), $(".tdesc-inside").data("jsp").scrollTo(0, 0), 
+        $.fn.media.api.calculateMiniMargin("right")),
         !1
     }),
     $(".closetour").live("click",

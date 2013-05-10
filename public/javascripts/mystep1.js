@@ -187,8 +187,9 @@ $(document).ready(
             'buttonText' : '请选择图片',
             'removeCompleted' : false,
             'multi' : true,
-            onComplete:function(n,t,i,r){ /////////////////////////////请在onComplete函数里将cover-img修改
-            	$("#cover-img").attr("src", "/photo"+r);
+            'onUploadSuccess' : function(file, data, response){ /////////////////////////////请在onComplete函数里将cover-img修改
+            	$("#cover-img").attr("src", JSON.parse(data).uploadFileName );
+		$("#coverThumbnail").attr("value", JSON.parse(data).uploadFileName );
             }
         });
         

@@ -40,7 +40,7 @@
     <div id="header-content">
         <h1>
         <a href="/">
-            <img src="/images/yunyou.png" style="width: 168px"></a>
+            <img src="/images/yunyou2.png" style="width: 168px"></a>
         </h1>
         <div id="sub-nav">
             <ul class="subnav-links clearfix">
@@ -51,10 +51,10 @@
                     <div class="subnav-dropdown" id="sn-user-dropdown">
                         <span class="sn-user-email"></span>
                         <ul class="sn-meta">                                    
-                            <li><a href="/home?user=<%= user %>" target="_blank">主页设置</a></li>
+                            <li><a href="/home" target="_blank">主页设置</a></li>
                         </ul>
                         <ul>                                    
-                            <li><a href="/">退出帐号</a></li>
+                            <li><a href="/logout">退出帐号</a></li>
                         </ul>
                     </div>
                 </li>               
@@ -104,16 +104,12 @@
 <div class="lightbox-reorder dn" id="reorder-window">
     <div id="re-list-container" class="scrollable">
         <ul id="sortableListToCheckbox" class="ui-sortable" style="">
-        <!--Test-->
+		<!--Test-->
+	<% line.stops.forEach(function(stop, index) {%>	
         <li id="XN6pQgMdrV0" class="ui-state-default" style="">
-        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
-        <li id="XN6pQgMdrV0" class="ui-state-default" style="">
-        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
-        <li id="XN6pQgMdrV0" class="ui-state-default" style="">
-        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
-        <li id="XN6pQgMdrV0" class="ui-state-default" style="">
-        	<a rel="XN6pQgMdrV0" data-name="北京">1. 北京</a></li>
-		</ul>
+	   <a rel="XN6pQgMdrV0" data-name=<%= stop.stopName %>></a></li>
+	<% }) %>
+	</ul>
     </div>
     <div id="re-list-ctrl" class="clearfix">
         <a href="#" class="medium-button close-light cancel"><span>Cancel</span></a>
@@ -140,7 +136,7 @@
             <a href="" class="ir bb-next bb-disabled">下一个</a>
             <a href="" class="bb-delete">删除</a> 
             <div class="bb-controls">
-                <a href="" class="medium-button-action" id="button-addnewstop" style="">
+                <a href="/step2" class="medium-button-action" id="button-addnewstop" style="">
                 	<span><b>添加站点</b></span></a>
                 <a href="" class="medium-button" id="button-discardchange" style="display: none;">
                 	<span>放弃</span></a> 
@@ -156,8 +152,8 @@
     </div>
     
     <div id="stop-container">
-	<form id="stop-form" method="post" action="/stopInfoHandler" data-ajax="true" data-ajax-begin="fnDisableButton" data-ajax-method="Post" data-ajax-success="reloadSavedStop" data-successmessage="ok" novalidate="novalidate">
-		<input id="stopId" name="stopId" type="hidden" value="" data-val="true" data-val-number="The field StopID must be a number." data-val-required="The StopID field is required.">
+	    <form id="stop-form" method="post" action="/step2" ><!-- data-ajax="true" data-ajax-begin="fnDisableButton" data-ajax-method="Post" data-ajax-success="reloadSavedStop" data-successmessage="ok" novalidate="novalidate">-->
+		<input id="stopnum" name="stopnum" type="hidden" value="" data-val="true" data-val-number="The field stopnum must be a number." data-val-required="The StopID field is required.">
 		<input id="lineId" name="lineId" type="hidden" value="">
 		<div class="step2-container" style="margin-top: 84px;">
 	    <div class="step2-container-inside">
@@ -175,7 +171,7 @@
                         <div class="error-msg">
                             <span class="field-validation-valid" data-valmsg-for="Thumbnail" data-valmsg-replace="true"></span>
                         </div>
-                        <!----><input id="stopThumbnail" name="stopThumbnail" class="track-change" data-val="true" data-val-errorholder=".uim-cont" data-val-required="compulsory field" type="hidden" value="">
+                        <!----><input id="stopthumbnail" name="stopthumbnail" class="track-change" data-val="true" data-val-errorholder=".uim-cont" data-val-required="compulsory field" type="hidden" value="">
                     </div>
                     
                      <div class="st-cont">
@@ -183,9 +179,10 @@
                             <h4 class="us-title">
                                 <em class="star">*</em>
                                 站点名
-                            </h4>
-                            <input id="st-title" name="stopName" class="txtfield forcounter has-suggestion-2 track-change" type="text" value=""
-                            	data-suggestion="Select an appropriate name, relevant to the stop." data-val="true" data-val-length="50 character(s) max" data-val-length-max="50" data-val-required="compulsory field">
+			</h4>
+			
+                         <input id="stopname" name="stopname" class="txtfield forcounter track-change input-changed" type="text" value=""
+			 data-suggestion="Select an appropriate name, relevant to the stop." data-val="true" data-val-length="50 character(s) max" data-val-length-max="50" data-val-required="compulsory field">
                             <p class="charleft">
                                 <span>2</span>/50
                             </p>
@@ -207,7 +204,7 @@
                         <h4 class="us-title">
                             站点描述
                         </h4>
-                        <textarea id="stopDesc" name="stopDesc" class="txtarea forcounter elastic track-change" cols="20" data-val="true" data-val-length="3000 character(s) max" data-val-length-max="3000" rows="2" style="max-height: 232px; overflow: hidden;"></textarea>
+                        <textarea id="stopdes" name="stopdes" class="txtarea forcounter elastic track-change" cols="20" data-val="true" data-val-length="3000 character(s) max" data-val-length-max="3000" rows="2" style="max-height: 232px; overflow: hidden;"></textarea>
                         <p class="charleft">
                             <span>0</span>/3000
                         </p>
@@ -227,7 +224,7 @@
                         <ul class="images-list">
                         	<li id="">
 	                            <div class="il-item">
-	                                <span style="height: 105px; width: 140px;" class="rounded"><img alt="" src=""></span>
+	                                <span style="height: 105px; width: 140px;" class="rounded"><img src="" style="height: 105px; width: 140px;"></span>
 	                            </div>
 	                            <p class="il-caption"></p>
 	                            <p class="il-controls">
@@ -240,7 +237,8 @@
                     <div class="clearfix " id="add-image-container">
 	                    <!--<a href="#" class="medium-button addimages-button" id="adImage">
 	                	<span><b>更多图片</b></span></a>-->
-	                	<input name="file_upload2" id="file_upload2" value="">
+			<input name="file_upload2" id="file_upload2" value="">
+			<input value="" id="stopimages" name="stopimages" type="hidden" >
 	                </div>
                 </div>
                 </div>
@@ -294,7 +292,7 @@
 							ready: function (event) {
 								$(this).jPlayer("setMedia", {
 									mp3:"<%= songmp3 %>"
-								}).jPlayer("play", <%= starttime %>);
+								}).jPlayer();
 							},
 							swfPath: "javascripts",
 							supplied: "mp3",
@@ -305,6 +303,7 @@
 					//]]>
 					</script>
 					<div style="padding:10px 0 50px 30px; "><input name="file_upload3" id="file_upload3" value="" style="left: 30px"></div>
+						<input value="" id="stopaudio" name="stopaudio" type="hidden"  >
                 </div>
                 
             </div>
@@ -320,7 +319,6 @@
         <p class="back-next">
             <a href="javascript:void(0);" class="large-button" id="footerbtn-discardchange" style=""><span>丢弃</span></a> 
             <a href="javascript:void(0);" class="large-button-action" id="footerbtn-savechange" style=""><span>保存</span></a>
-            <a href="/step2" class="large-button-action large-button-action-next" style="display: none;"><span>2. 站点</span></a>
         </p>
     </div>
 </footer>

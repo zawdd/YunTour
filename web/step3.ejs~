@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width">
+    <link href="./stylesheets/main.css" rel="stylesheet">
+    <link href="./stylesheets/step3-sm.css" rel="stylesheet">
+    
+    <script src="./javascripts/jquery.min.js"></script>
+    <script src="./javascripts/libs.js"></script>
+    <script src="./javascripts/jqueryui.js"></script>
+    <script src="./javascripts/jquery.jscrollpane.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADCPDkEWSeGpUTj_c8Zem6pCHI2v-SrOA&amp;sensor=false"></script>
+    <script type="text/javascript">
+		var num = <%= Object.keys(line.stops).length %>;//%= stops.length %> 这个是给个stopNumber
+    </script>
+    <script src="./javascripts/mystep3.js"></script>
+    
+
+    <script type="text/javascript">
+        var baseUrl = "/";
+        var userID = "";
+        var lang = "en";
+
+    </script>
+
+    
+    
+
+</head>
+<body onload="initialize()">
+<header id="home-header">
+    <div id="header-content">
+        <h1>
+        <a href="/">
+            <img src="/images/yunyou2.png" style="width: 168px"></a>
+        </h1>
+        <div id="sub-nav">
+            <ul class="subnav-links clearfix">
+                <li id="subnav-user">
+                    <a href="#" class="dropbtn">
+                        <em><span><%= user %></span></em>
+                    </a>
+                    <div class="subnav-dropdown" id="sn-user-dropdown">
+                        <span class="sn-user-email"></span>
+                        <ul class="sn-meta">                                    
+                            <li><a href="/" target="_blank">主页设置</a></li>
+                        </ul>
+                        <ul>                                    
+                            <li><a href="/">退出帐号</a></li>
+                        </ul>
+                    </div>
+                </li>               
+            </ul>
+        </div>            
+    </div>
+</header>
+<!--！ end header //++++++++++++++++++++++++++++++++++++-->
+
+<div id="subheader-steps">
+    <div id="page-title">
+        <ul>
+            <li><a href="/create">创建路线</a></li>
+            <li><%= title %></li>
+        </ul>
+    </div>
+    <div id="subheader-steps-inside">
+        <ul class="steps-tabs clearfix">
+            <li class="step-description">
+                <a href="/step1">
+                    <span>
+                        <em>第一步</em>
+                        <strong>线路概况</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-tourstops">
+                <a href="/step2">
+                    <span>
+                        <em>第二步</em>
+                        <strong>第n站点</strong>
+                    </span>
+                </a>
+            </li>
+            <li class="step-map stop-dependant step-active">
+                <a href="/step3">
+                    <span>
+                        <em>第三步</em>
+                        <strong>地图设置</strong>
+                    </span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--！ end subheader //++++++++++++++++++++++++++++++++++++-->
+
+<div id="main" class="step-container">
+	<h2 class="steps-title">3. 地图</h2>
+	<div class="steps-desc">根据左边站点选择地图位置，只要点一点，旅程更精彩</div>
+	<input id="lineId" name="lineId" type="hidden" value="0" />
+	<form id="map-form" method="post" action="mapInfoHandler" style="display: none;">
+		<!--多少个复制多少次-->
+		<% line.stops.forEach(function(stop, index) {%>
+		<input id=<%= index+1 %> name=<%= index+1 %> value="">
+		<% }) %>
+	</form>
+	
+    <div class="stepmap-big clearfix">
+        <div class="stepmap-aside" style="margin-top: 0px;">
+            <div class="stepmap-list-container" style="overflow: hidden; padding: 0px; width: 270px;">
+            <div class="jspContainer" style="width: 270px; height:117px;"><!-- %= stops.length*37+5 %>px;"> -->
+            	<div class="jspPane" style="padding: 0px; top: 0px; width: 270px;">
+            		<ul class="stepmap-list ui-sortable" id="stop-container">
+				<!--多少个复制多少次-->
+				<% line.stops.forEach(function(stop, index) {%>
+				<li rel=<%= index+1 %>><a href="#"><span class="clearfix">
+						<b><%= index+1 %></b> <em><%= stop.stopName %></em></span></a></li>
+				<% }) %>
+            	
+            		</ul>
+            </div></div></div>
+            <a href="" class="g-map-reset  reset-itin">重设路径</a>
+        </div>
+        <div class="stepmap-content">
+            <div class="stepmap-gmap">
+                <div id="map-canvas" style="width: 650px; height: 570px; position: relative; background-color: rgb(229, 227, 223); overflow: hidden; -webkit-transform: translateZ(0);">
+            	</div>
+            </div>
+        </div>
+    </div>
+    <!-- end .stepmap-big //-->
+
+</div>
+<!-- end #main //-->
+
+<footer>
+    <div id="footer-inside">
+        <a class="f-exit" href="/browse-tours">退出</a>
+        <a  class="f-del" href="javascript:void(0);">删除</a>
+        <p class="back-next">
+
+            <a href="javascript:void(0);" class="large-button-action" id="footerbtn-savechange" style="display: block">
+            	<span>完成</span></a>
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>

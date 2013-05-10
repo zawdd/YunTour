@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    
+    <link rel='stylesheet' href='/stylesheets/bootstrap.css' />
+    <link rel='stylesheet' href='/stylesheets/bootstrap-responsive.css' />
+    <link rel='stylesheet' href='/stylesheets/main-css.css' />
+    <script src="./javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.js"></script>
+    
+  </head>
+  <body>
+    <header id="home-header">
+        <div id="header-content">
+            <h1><a href="/">
+            	<img src="/images/yunyou.png" style="width: 168px"></a>
+            </h1>
+            <nav id="main-nav">
+                <ul class="clearfix">
+                    <li class="/browse"><a href="/browse">观看线路</a></li>
+                    <li class="/create"><a href="/create">创建线路</a></li>
+                </ul>
+		</nav>
+		<% if (!user) {%>
+			<div id="sub-nav">
+				<ul class="subnav-links clearfix">            
+					<li>
+						<a href="/signin" id="signin-nav-btn">登录</a>
+					</li>
+					<li>
+						<a href="/signup" id="signup-nav-btn">注册</a>
+					</li>   
+				</ul>
+			</div>
+	        <% } else { %>
+	<div id="sub-nav">
+			<ul class="subnav-links clearfix">
+				<li id="subnav-user">
+                    <a href="#" class="dropbtn">
+                        <em><span><%= user.userEmail %></span></em>
+                    </a>
+                    <div class="subnav-dropdown" id="sn-user-dropdown">
+                        <span class="sn-user-email"></span>
+                        <ul class="sn-meta">                                    
+                            <li><a href="/" target="_blank">主页</a></li>
+                            <li><a href="" target="_blank">设置</a></li>
+                        </ul>
+                        <ul>                                    
+                            <li><a href="/logout">退出帐号</a></li>
+                        </ul>
+                    </div>
+                </li>				
+			</ul>
+		</div>    
+		<% } %>
+
+        </div>
+    </header>
+    <div id="main-home">
+    <div id="myCarousel" class="carousel slide" style="margin:0 0 20px 0;">
+	  <ol class="carousel-indicators">
+	    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+	    <li data-target="#myCarousel" data-slide-to="1"></li>
+	    <li data-target="#myCarousel" data-slide-to="2"></li>
+	  </ol>
+	  <!-- Carousel items -->
+	  <div class="carousel-inner">
+	    <div class="active item">
+	    	<img src="/images/1.jpg" alt="">
+	    	<div class="carousel-caption">
+              <h4>广州文化二日游</h4>
+              <p>海边的微风吹拂海岸，眺望远方海水蔚蓝，泛着粼粼波光……</p>
+            </div>
+        </div>
+	    <div class="item">
+	    	<img src="/images/2.jpg" alt="">
+	    	<div class="carousel-caption">
+              <h4>大学城一日游</h4>
+              <p>想知道怎样在一天的时间内游览整个大学城么？来，跟我走……</p>
+            </div></div>
+	    <div class="item">
+	    	<img src="/images/3.jpg" alt="">
+	    	<div class="carousel-caption">
+              <h4>香港初见一日游</h4>
+              <p>第一次到达香港惊慌失措？不知何去何从？跟随我的脚步，美食、风景，为您一一呈现……</p>
+            </div>
+        </div>
+	  </div>
+	  <!-- Carousel nav -->
+	  <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+	  <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+	</div>
+	<div class="clearfix">
+        <div id="create-tours">
+            <h3 style="top:20px;">新建路线</h3>
+            <p>
+                新建分享您喜欢的旅游路线~~~从现在开始!GoGo
+            </p>
+            <a href="/create" class="button"><span>创建路线</span></a>
+            <img src="/images/create-tours.png" alt="" style="right: 0px;">
+        </div>
+        <div id="experience-tours">
+            <h3 style="top:20px;">手机应用</h3>
+            <p>
+                可以从网站这里下载手机app~~~随时随地分享~
+            </p>
+
+            <a href="/download" class="button"><span>App下载</span></a>
+            <img src="/images/experience-tours.png" class="phone" alt="">
+                        
+        </div>
+    </div>
+    </div>
+  </body>
+</html>

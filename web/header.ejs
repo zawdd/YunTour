@@ -1,0 +1,44 @@
+<header id="home-header" style="background-color: #de6a1d;">
+    <div id="header-content">
+        <h1><a href="/">
+        	<img src="/images/yunyou.png" style="width: 168px"></a>
+        </h1>
+        <nav id="main-nav">
+            <ul class="clearfix">
+                <li class="/browse"><a href="/browse" style="background-color: #ffffff;">观看线路</a></li>
+                <li class="/create"><a href="/create" style="background-color: #ffffff;">创建线路</a></li>
+            </ul>
+		</nav>
+		<% if (!user) {%>
+		<div id="sub-nav">
+			<ul class="subnav-links clearfix">            
+				<li>
+					<a href="/signin" id="signin-nav-btn" style="background-color: #ffffff;">登录</a>
+				</li>
+				<li>
+					<a href="/signup" id="signup-nav-btn" style="background-color: #ffffff;">注册</a>
+				</li>   
+			</ul>
+		</div>
+        <% } else { %>
+		<div id="sub-nav">
+			<ul class="subnav-links clearfix">
+				<li id="subnav-user">
+                    <a href="#" class="dropbtn" style="background-color: #ffffff;">
+                        <em><span><%= user.userEmail %></span></em>
+                    </a>
+                    <div class="subnav-dropdown" id="sn-user-dropdown">
+                        <span class="sn-user-email"></span>
+                        <ul class="sn-meta">                                    
+                            <li><a href="/" target="_blank">主页设置</a></li>
+                        </ul>
+                        <ul>                                    
+                            <li><a href="/logout">退出帐号</a></li>
+                        </ul>
+                    </div>
+                </li>				
+			</ul>
+		</div>    
+		<% } %>
+    </div>
+</header>

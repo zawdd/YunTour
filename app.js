@@ -58,8 +58,7 @@ app.get('/login', routes.login);
 app.post('/login', routes.checkNotLogin);
 app.post('/login', routes.doLogin);
 
-app.get('/logout', routes.checkLogin);
-app.get('/logout', routes.logout);
+
 
 app.get('/usercenter', routes.checkLogin);
 app.get('/usercenter', routes.usercenter);
@@ -85,13 +84,44 @@ app.get('/signmap/:lineid', routes.signMap);
 app.post('/signmap/:lineid', routes.checkLogin);
 app.post('/signmap/:lineid', routes.doSignMap);
 //web
+app.get('/step1', routes.checkLogin);
 app.get('/step1', routes.step1);
+app.post('/step1', routes.checkLogin)
 app.post('/step1', routes.step1Save);
+
+app.get('/step2', routes.checkLogin);
 app.get('/step2', routes.step2);
+app.post('/step2', routes.checkLogin);
+app.post('/step2', routes.step2Insert);
+
+app.get('/step3', routes.checkLogin);
 app.get('/step3', routes.step3);
+app.post('/step3', routes.checkLogin);
+app.post('/step3', routes.mapInfoHandler);
+
+app.get('/create', routes.checkLogin);
 app.get('/create', routes.create);
+
 app.get('/detail', routes.detail);
 app.get('/browse', routes.browse);
+
+app.get('/signin', routes.checkNotLogin);
+app.get('/signin', routes.login);
+app.post('/signin', routes.checkNotLogin);
+app.post('/signin', routes.doLogin);
+
+app.get('/signup', routes.checkNotLogin);
+app.get('/signup', routes.reg);
+app.post('/signup', routes.checkNotLogin);
+app.post('/signup', routes.doReg);
+
+app.get('/home', routes.checkLogin);
+app.get('/home', routes.home);
+app.post('/home', routes.checkLogin);
+app.post('/home', routes.doHome);
+
+app.get('/logout', routes.checkLogin);
+app.get('/logout', routes.logout);
 
 app.get('/remove', routes.remove);
 //app.post('/save', routes.save);
@@ -106,6 +136,7 @@ app.get('/browsebylocation', routes.browseByLocation);
 app.get('/browsebyid', routes.browseByID);
 app.get('/browsebyemail', routes.browseByEmail);
 app.get('/browseallbytime', routes.browseAllByTime);
+app.get('/apkupdate', routes.apkupdate);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

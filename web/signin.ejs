@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="/stylesheets/main-css.css" rel="stylesheet">
+	<link href="/stylesheets/signin.css" rel="stylesheet">
+	
+	<script src="/javascripts/jquery.min.js"></script>
+	<script src="/javascripts/jqueryui.js"></script>
+</head>
+<body style="background: transparent url(/images/bg.jpg);">
+	<header id="home-header">
+        <div id="header-content">
+            <h1>
+            <a href="/">
+            	<img src="/images/yunyou2.png" style="width: 168px"></a>
+            </h1>
+            <nav id="main-nav">
+                <ul class="clearfix">
+                    <li class=""><a href="/browse">观看线路</a></li>
+                    <li class=""><a href="/create">创建线路</a></li>
+                </ul>
+            </nav>
+			<div id="sub-nav">
+				<ul class="subnav-links clearfix">            
+					<li>
+						<a href="/signin" id="signin-nav-btn">登录</a>
+					</li>
+					<li>
+						<a href="/signup" id="signup-nav-btn">注册</a>
+					</li>   
+				</ul>
+			</div>            
+        </div>
+    </header>
+    <!--！ end #header -->	
+	
+	<div class="ss-content">
+    <div class="ss-win-container" style="margin: 10px auto;">
+        <div class="ss-win" id="ss-signin-1">
+            <h2 class="signin-title">登录</h2>
+			<form action="/signin" id="guidigo-form-login" method="post" novalidate="novalidate">
+				<input name="__RequestVerificationToken" type="hidden" value="cqj6HYwKI7G9V0f2d3n6XcMkz8Yd8OzHWsYxbUApOxqXkNe0NJ5l-x-eWg-1ltfOcqAYgiTMREdHDhf_hUw67sFGdzj5Rvo5aMlHX8MRDUYEWylfDRhjYYVErgnZq0FrKgO5zg2">                            
+				<fieldset>
+                <div class="ss-field">
+                    <label for="signin-email">Email</label>
+                    <input data-val="true" data-val-regex="wrong format" data-val-regex-pattern="(?:[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+)*|&quot;(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*&quot;)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])" data-val-required="The Email field is required." id="signin-email" name="useremail" placeholder="your email" tabindex="1" type="text" value="">
+                    <div class="error-msg">
+                    	<span class="field-validation-valid" data-valmsg-for="useremail" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+
+                <div class="ss-field">
+                    <label for="signin-pass">密码</label>
+                    <input data-val="true" data-val-required="The Password field is required." id="signin-pass" name="password" placeholder="your password" tabindex="2" type="password">
+                    <!-- <a href="" class="open-ss-forgot" id="osf-1">忘记密码？</a> 暂不-->
+                    <div class="error-msg">
+                    	<span class="field-validation-valid" data-valmsg-for="password" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="ss-error">
+                </div>
+                <div class="clearfix">
+                    <input type="submit" value="Sign in" class="ss-submit" tabindex="3">
+                    <p class="ss-stay">
+                        <input data-val="true" data-val-required="The Stay signed in field is required." id="RememberMe" name="RememberMe" type="checkbox" value="true">
+                        <input name="RememberMe" type="hidden" value="false"> 
+                        <label for="RememberMe">保持登陆</label>
+                    </p>
+                </div>
+            	</fieldset>
+			</form>                    
+			</div>
+            <!-- #ss-signin -->
+            <div class="ss-win dn" id="ss-forgot">
+		    <h2 class="signin-title">Forgot password?</h2>
+		    <a href="#" class="ir ss-close">close</a>
+			<form action="/Account/ResetPassword" class="signin-form reset-form" id="reset-pass-form" method="post" novalidate="novalidate">        
+				<fieldset>
+			            <p class="ss-desc">Enter the email address you used when you signed up and we will send you a new password.</p>
+			            <div class="ss-field">
+			                <label for="reset-email">email</label>
+			                <input data-val="true" data-val-regex="The format of your email is invalid." data-val-regex-pattern="(?:[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+)*|&quot;(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*&quot;)@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])" data-val-required="The Email address field is required." id="reset-email" name="Email" placeholder="your password" type="text" value="">
+			                <div class="error-msg">
+			                	<span class="field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+			                </div>
+			            </div>
+			            <a href="#" class="form-lbtn" id="ss-reset-pass">Reset my password</a>
+			            <img src="/Content/Images/loader.gif" alt="" class="ss-loader" style="display:none;">
+			        </fieldset>
+			</form>
+			</div>
+			<!-- #ss-forgot -->
+
+
+			<div class="ss-win dn" id="ss-forgot-2">
+			    <h2 class="signin-title">Forgot password?</h2>
+			    <form action="" method="post" novalidate="novalidate">
+			        <fieldset>
+			            <p class="ss-desc ss-desc-cent">
+			                <img src="/Content/Images/letter.png" alt="" class="ss-letter">
+			                A new password has been sent to your mailbox:<br>
+			                <strong class="mail-placeholder"></strong>
+			            </p>
+			            <p class="ss-desc ss-desc-cent">
+			                <a href="#" class="form-lbtn form-lbtn-small passok-btn" id="passok-btn">OK</a>
+			            </p>
+			        </fieldset>
+			    </form>
+			</div>
+	    </div>
+	    <!-- .ss-win-container -->
+	</div>
+</body>
+</html>

@@ -4,14 +4,20 @@
  */
 var User = require('../models/user.js');
 var Line = require('../models/line.js');
-var ObjectId = require('mongodb').ObjectID
+var ObjectId = require('mongodb').ObjectID;
+var fs = require('fs');
+var util = require('util');
 
 exports.index = function(req, res){
-  res.render('index', { title: 'YunTour' });
+  
+  res.render('index', { 
+    title : 'YunTour',
+    user : req.session.user
+  });
 };
 
 exports.reg = function(req, res){
-  res.render('reg', {       
+  res.render('signup', {       
     title: '用户注册',
 //    user: req.session.user,    
 //    success: req.flash('success').toString(),      
@@ -25,7 +31,7 @@ exports.doReg = function(req, res){
   if (req.body['password-repeat'] !== req.body['password']){
     req.flash('error', '两次输入的口令不一样');
     console.log("两次口令不一样");
-    return res.redirect('/reg');
+    return res.redirect('/signup');
   }
 
   var newUser = new User({
@@ -34,7 +40,7 @@ exports.doReg = function(req, res){
     password : req.body.password,
     userNation : "中国",
     usserImage : "",
-    accountType :  "free",
+    accountType : "免费",
     tourCreate : [],
     takenSpace : 0,
     userLanguage : "中文",
@@ -53,13 +59,13 @@ exports.doReg = function(req, res){
     if (err) {
       req.flash('error', err);
       console.log("用户已经存在");
-      return res.redirect('/reg');
+      return res.redirect('/signup');
     }
     //如果不存在则新增用户
     newUser.create(function(err) {
       if (err) {
 	req.flash('error', err);
-	return res.redirect('/reg');
+	return res.redirect('/singup');
 	console.log("插入失败");
       }
       
@@ -68,7 +74,7 @@ exports.doReg = function(req, res){
       User.updateBaseDir(req.session.user.userEmail, function(err, user){
         if (err) {
 	  req.flash('error', err);
-    	  return res.redirect('/reg');
+    	  return res.redirect('/signup');
         }
 	if (user) {
 	  //建立以user.baseDir为目录的文件夹
@@ -130,7 +136,7 @@ exports.usercenter = function(req, res){
 
 //用户登录
 exports.login = function(req, res){
-  res.render('login', {
+  res.render('signin', {
     title: '用户登入',
 //    user: req.session.user,
     success: req.flash('success').toString(),
@@ -142,11 +148,11 @@ exports.doLogin = function(req, res){
       User.get(req.body.useremail, function(err, user) {
 	if (!user) {
 	  req.flash('error', '用户不存在');
-	  return res.redirect('/login');
+	  return res.redirect('/signin');
 	}
 	if (user.password !== req.body.password) {
 	  req.flash('error', '用户口令错误');
-	  return res.redirect('/login');
+	  return res.redirect('/signin');
 	}
 	req.session.user = user;
  	req.flash('success', '登入成功');
@@ -158,6 +164,7 @@ exports.doLogin = function(req, res){
 //登出
 exports.logout = function(req, res) {
   req.session.user = null;
+  req.session.lineId = null;
   req.flash('success', '登出成功');
   console.log("用户成功登出");
   res.redirect('/');
@@ -167,7 +174,7 @@ exports.logout = function(req, res) {
 exports.checkLogin = function(req, res, next) {
   if (!req.session.user) {
     req.flash('error', '未登入');
-    return res.redirect('/login');
+    return res.redirect('/signin');
   }    
   next();
 };
@@ -442,13 +449,40 @@ exports.browseAllByTime = function browseAllByTime(req, res){
   });
 };
 
+//apk版本更新
+exports.apkupdate = function apkupdate(req, res){
+  var version = {
+    appname : "Update Client",
+    apkname : "update.apk",
+    apkurl : "http://103.31.20.60:3000/update.apk",
+    verCode : "1",
+    verName : "1.0"
+  };
+    res.end(JSON.stringify(version), 'utf8'); 
+};
 //web端路由函数
 exports.step1 = function(req, res) {
-//在打开step1的时候就创建路线，得到id和baseDir方便图片的存储
+
+  res.render('step1', {
+    title: "创建一条新的线路",
+    user : req.session.user,
+  });
+
+};
+
+exports.step1Save = function(req, res) {
+
+  console.log("userimage  "+req.session.user.userImage);
+  var alltopics = ["历史","艺术","时尚","体育","家庭","生活方式","自然"];
+  var topicsArr = req.body.topics.split(',');
+  var topics = new Array();
+  for(var i=0;i<topicsArr.length;i++){
+      topics[i] = alltopics[parseInt(topicsArr[i])];
+  }  
   var newLine = new Line({
-    lineName : "",
-    coverThumbnail : "",
-    lineSummary : "",
+    lineName : req.body.lineName,
+    coverThumbnail : req.body.coverThumbnail,
+    lineSummary : req.body.lineSummary,
     stops : [],
     baseDir : "",
     mapType : "Google",
@@ -457,14 +491,14 @@ exports.step1 = function(req, res) {
     language : "中文",
     lineLength : 0,
     duration : 0,
-    topics : [],
+    topics : topics,
     price : 0,
     authorEmail : req.session.user.userEmail,
     author : req.session.user.userName, 
     authorImage : req.session.user.userImage,
     authorBio : req.session.user.userShort,
     authorType :  req.session.user.authorType,
-    keyWords : "",
+    keyWords : req.body.keyWords.split(','),
     traffics : "",
     cautions : "",
     lineLinks : "",
@@ -483,58 +517,32 @@ exports.step1 = function(req, res) {
       //req.flash('success', '创建成功');
       console.log("create"+line._id);
       req.session.lineId = line._id;
-      res.render('step1', {
-        title: "创建一条新的线路",
-        user : req.session.user.userEmail,
-	lineId : req.session.lineId
-      });
+      req.flash('success', '成功');
+      res.redirect('/step2');
     }
 
   });
-};
 
-exports.step1Save = function(req, res) {
-  
-  Line.get(req.session.lineId, function(err, line){
-	  
-    line.lineName = req.body.lineName;
-    line.lineSummary = req.body.lineSummary;
-    line.mapAddress = req.body.mapAddress;
-    line.keyWords = req.body.keyWords.split(',');
-    var alltopics = ["历史","艺术","时尚","体育","家庭","生活方式","自然"];
-    var topicsArr = req.body.topics.split(',');
-    var topics = new Array();
-    for(var i=0;i<topicsArr.length;i++){
-      topics[i] = alltopics[parseInt(topicsArr[i])];
-    }  
-    line.topics = topics;
-
-    Line.update(req.session.lineId, line, function(err, doc){
-      if (err) {
-        req.flash('error', err);
-        //return res.redirect('/signmap/'+req.params.lineid);
-        console.log("失败");
-      } else {
-        req.flash('success', '成功');
-        //res.redirect("/browesdetail/"+req.params.lineid);
-      }
-
-    });
-  });
 };
 
 exports.step2 = function(req, res){
-  Line.get(req.session.lineId, function(err, line){
-    User.get(line.authorEmail, function(err, user){
-      res.render('detail', {
-        title: '创建站点',
-        user: req.session.user.userEmail,
-        line : line,
-	lineid : req.session.lineId,      
-      });
+  if(req.session.lineId){
+    Line.get(req.session.lineId, function(err, line){
+      User.get(line.authorEmail, function(err, user){
+        res.render('step2', {
+          title: '创建站点',
+          user: req.session.user.userEmail,
+          line : line,
+	  lineid : req.session.lineId, 
+	  songmp3: '/images/audio.mp3',
+          starttime: '0',
+          songname: 'audio'     
+        });
+      });    
     });
-    
-  });
+  }else {
+    res.redirect('/step1');
+  }
 
 };
 /*
@@ -548,41 +556,43 @@ exports.step2Save = function(req, res){
         //return res.redirect('/signmap/'+req.params.lineid);
       } else {
         req.flash('success', '成功');
-        //res.redirect("/browesdetail/"+req.params.lineid);
+        //res.redirect("/browesdetail/"+req.params.lineidC:/Users/SEA_SM~1/AppData/Local/Temp/411c2e0ff8c1dd8950794bf07c32546d);
       }
     });
   });
 };
-
+*/
 exports.step2Insert = function(req, res){
+  console.log("11"+req.body.stopthumbnail);
+  console.log("22"+req.body.stopimages);
+  console.log("33"+req.body.stopname);
+ // var num = req.body.stopnum;
+  var num = 0;
   var stop = {
-    num : req.body.stopnum, //通过数组中的位置来给出顺序
+    num : num, //通过数组中的位置来给出顺序
     stopName : req.body.stopname,
     stopDes : req.body.stopdes,
     locate : [],
     stopThumbnail : req.body.stopthumbnail,
-    stopImages : [req.body.stopimages1,
-                  req.body.stopimages2, 
-		  req.body.stopimages3],
+    stopImages : req.body.stopimages.split(','),
     stopAudio : req.body.stopaudio,
     imageOrder : '0',
     createDate : new Date(),
   };
   Line.insertStop(req.session.lineId, stop, function(err, line){
     if (err) {
-      req.flash('error', err);
-      //return res.redirect('/createstop');
+      req.flash('error', err);  
     } else {
       req.flash('success', '插入成功');
-      //res.redirect("/browesdetail/"+req.params.lineid);
     }
+      res.redirect('/step2');
   });
 };
-*/
+
 exports.step3 = function(req, res){
   //根据路线ID查询得到stop的数组
-  var testid = "517b6a8a07782eafacad3876";
-  Line.get(testid, function(err, line){
+  if(req.session.lineId){
+  Line.get(req.session.lineId, function(err, line){
     var stopIdArr = new Array();
     var stopNameArr = new Array();
     var i = 0;
@@ -595,15 +605,61 @@ exports.step3 = function(req, res){
       title: '站点地图',
       user: req.session.user.userEmail,
       lineId: req.session.lineId,
+      line : line,	    
       stopIds: stopIdArr,
-      stopNames: stopNameArr
-      });    
+      stopNames: stopNameArr,
+      apikey: 'AIzaSyATIm9ONp2ng5G5gNf3t-MiuorcUtCIl1I',
+      latOrigin: line.locate[0],
+      lngOrigin: line.locate[1],
+      userName: req.session.user.userName	    
+    });    
   });
-
+  }else{
+    res.redirect('/step1');
+  }    
 };
 
-//exports.step3Save = function(req, res){
-//};
+exports.mapInfoHandler = function(req, res){
+  var locations = new Array();
+  console.log(req.body["1"]);
+  var i = 1;
+  while(1){
+    if(req.body[""+i]){	
+      var temp = req.body[""+i].split(",");	    
+      locations[i-1] = [parseFloat(temp[0]), parseFloat(temp[1])];
+
+      console.log(locations[i-1]);
+      i++;
+    }else 
+      break;
+
+  }
+  
+  console.log(locations.length);
+
+  Line.get(req.session.lineId, function(err, line){
+    line.locate = locations[0];
+    line.lineLength = 8.8;//根据具体坐标计算
+    for(var i = 0; i<locations.length; i++){
+      line.stops[i].locate = locations[i];
+      line.stops[i].num = i+1;
+    }   
+    Line.update(req.session.lineId, line, function(err, doc){
+      if (err) {
+        req.flash('error', err);
+        
+        console.log("标注失败");
+	return res.redirect('/step3');
+      } else {
+        req.flash('success', '标注成功');
+	req.session.lineId = null;
+        res.redirect('/create');
+      }
+
+    });
+  });
+  
+};
 
 exports.create = function(req, res) {
 
@@ -625,14 +681,14 @@ exports.create = function(req, res) {
 
 exports.detail = function(req, res) {
   Line.get(req.query.lineid, function(err, line){
-    User.get(line.authorEmail, function(err, user){
+    //User.get(line.authorEmail, function(err, user){
       res.render('detail', {
         title : "浏览详细线路信息",
         line : line,
-        user : user,
-	lineid : req.query.lineid,      
+        user : req.session.user,
+	lineId : req.query.lineid      
       });
-    });
+    //});
     
   });
 };
@@ -647,7 +703,7 @@ exports.browse = function(req, res) {
     if( Object.keys(lines).length != 0){
       res.render('browse', { 
         title : '观看路线',
-        //user : req.session.user.userEmail,
+        user : req.session.user,
         lines : lines,
 	page : req.query.page      
         //lineAuthorNations: 'lineAuthorNationArr'
@@ -659,30 +715,86 @@ exports.browse = function(req, res) {
 
 };
 
+exports.home = function(req, res) {
+  res.render('home', {
+    title : "个人设置",
+    user : req.session.user,  
+    uploadFileName : ""//'/images/b1.jpg'	  
+
+  });
+      
+};
+
+exports.doHome = function(req, res) {
+/* if (req.body['password-repeat'] !== req.body['password']){
+    req.flash('error', '两次输入的口令不一样');
+    console.log("两次口令不一样");
+    return res.redirect('/home');
+  }
+*/
+  var password = req.session.user.password;
+  var userimage = "";
+  if (req.body.userimage) {
+    userimage = req.body.userimage;
+  }
+  console.log("userimage"+userimage);	  
+  User.findAndModifyByName(req.session.user.userEmail,
+                           req.body.username,
+                           password,
+			   req.body.usershort,
+			   userimage,//应使用真实的上传目录
+                           function(err, user){
+    if(err){       
+      req.flash('error', err);
+      return res.redirect('/home');
+      console.log("更改用户信息失败");      
+    }
+    req.flash('success', '更改用户信息成功');
+    console.log("更改用户信息成功")
+    res.redirect('/'); 
+
+  });
+
+};
+
 exports.remove = function(req, res) {
   console.log("delete"+req.session.lineId);
-  req.session.lineId = null;
+ 
   Line.remove(req.session.lineId, function(err, line){
+    req.session.lineId = null;
     res.redirect("/step1");
   });
 };
 
 exports.uploadifyhandler = function(req, res, next) {
-    console.log(req.files.Filedata.path);//上传到服务器上的文件名字及路径，但没有文件后缀
-    console.log(req.files.Filedata.name);//文件在用户本地上的文件名，包含后缀名
-    var fileName = req.files.Filedata.path + '.'
-         + req.files.Filedata.name.substr(req.files.Filedata.name.indexOf('.')+1).toLowerCase();
-    console.log(fileName);//上传到服务器上的文件名字及路径，有文件后缀
-    fs.rename(req.files.Filedata.path, fileName, function(){
-          });
-    /*moveFile(fileName, '/public/'+fileName, function() {
-           });*/
-    fs.createReadStream(fileName).pipe(fs.createWriteStream('./public/'+fileName));
-    if(req.files.Filedata.path)
-        res.send(JSON.stringify({success: true, uploadFileName: fileName}), {'Content-Type': 'text/plain'}, 200);
-    else
-        res.send(JSON.stringify({success: false, error: err}), {'Content-Type': 'text/plain'}, 404);
-}
+  console.log(req.files.Filedata.path);//上传到服务器上的文件名字及路径，但没有文件后缀
+  console.log(req.files.Filedata.name);//文件在用户本地上的文件名，包含后缀名 
+  
+  //var succ=false;
+  var fileName = req.files.Filedata.path + '.' + req.files.Filedata.name.substr(req.files.Filedata.name.indexOf('.')+1).toLowerCase();
+  console.log(fileName);//上传到服务器上的文件名字及路径，有文件后缀
+  var readStream = fs.createReadStream(req.files.Filedata.path);
+  var pre = fs.realpathSync('./public');
+  var writeStream = fs.createWriteStream(pre + fileName);
+  util.pump(readStream, writeStream, function() {
+
+    fs.unlinkSync(req.files.Filedata.path);
+
+  });
+  /* 
+  fs.rename(req.files.Filedata.path, './public' + fileName, function(){
+  	//succ = true;
+  });*/
+   /*moveFile(fileName, '/public/'+fileName, function() {
+  });*/
+  //fs.createReadStream(fileName).pipe(fs.createWriteStream(fileName));
+  if(1){
+      res.send(JSON.stringify({success: true, uploadFileName: fileName}), {'Content-Type': 'text/plain'}, 200);
+      //res.redirect("/home")
+  }
+  else
+      res.send(JSON.stringify({success: false, error: "err"}), {'Content-Type': 'text/plain'}, 404);
+};
 
 //Andorid test
 exports.androidTest = function androidTest(req, res){

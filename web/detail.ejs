@@ -9,7 +9,7 @@
     
 	<link href="/stylesheets/main-css.css" rel="stylesheet">
 	<link href="/stylesheets/tour-detail.css" rel="stylesheet">
-	<script src="/javascripts/jquery.js"></script>
+	<link href="./skin/blue.monday/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />
 	<script src="/javascripts/jquery.min.js"></script>
 	<script src="/javascripts/jqueryui.js"></script>
     <script src="/javascripts/jquery.qtip.min.js"></script>
@@ -17,13 +17,9 @@
 	<script src="/javascripts/jquery.expander.min.js"></script>
 	<script src="/javascripts/jquery.jscrollpane.min.js"></script>
     <script src="/javascripts/jquery.mousewheel.js"></script>
+    <script src="./javascripts/jquery.jplayer.min.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADCPDkEWSeGpUTj_c8Zem6pCHI2v-SrOA&amp;sensor=false"></script>
     <script src="/javascripts/tour-detail.js"></script>  
-
-    <script type="text/javascript">
-        var isSignUp = false;
-        var planID = null;
-    </script>
 
 
     <script type="text/javascript">
@@ -44,17 +40,22 @@
          var directionsDisplay;
 		var directionsService = new google.maps.DirectionsService();
 		var map;
-		
+		/**/
 		var startPoint = new google.maps.LatLng(23.060720601586535, 113.38701725006104);//起点
 		var midPoint1 = new google.maps.LatLng(23.057068097970397, 113.39070796966553);//中间点
 		var midPoint2 = new google.maps.LatLng(23.05653502158676, 113.39581489562988);//中间点
 		var endPoint = new google.maps.LatLng(23.051914937836166, 113.3993124961853);//终点
+		var ss = new google.maps.LatLng(<%= line.locate[0] %>, <%= line.locate[1] %>);
 		var tour = [];//完整的一条路线经纬度坐标，包括起点、终点
-		
-		tour.push(startPoint);
-		tour.push(midPoint1);
-		tour.push(midPoint2);
-		tour.push(endPoint);
+		<% line.stops.forEach(function(stop, index) { %>
+		var temp = new google.maps.LatLng(<%= stop.locate[0] %>, <%= stop.locate[1] %>);
+		tour.push(temp);
+                <% }); %>		
+		//tour.push(startPoint);
+		//tour.push(midPoint1);
+		//tour.push(midPoint2);
+		//tour.push(endPoint);
+
 		var waypts = [];
 		
 		function initialize() {
@@ -62,7 +63,7 @@
 		  var mapOptions = {
 		    zoom: 14,
 		    mapTypeId: google.maps.MapTypeId.ROADMAP,
-		    center: startPoint
+		    center: ss
 		  }
 		  map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 		  directionsDisplay.setMap(map);
@@ -75,8 +76,8 @@
 		  for (i=1;i<tour.length;i++)
 		  {
 		    waypts.push({
-              location: tour[i],
-              stopover: false});
+              		location: tour[i],
+              		stopover: false});
 		  }
 			
 	      var request = {
@@ -104,189 +105,28 @@
 		    map: map
 		  });
 	    }
-		/*
-        function initialize() {
-            var latlng = new google.maps.LatLng();
-
-            var myOptions = {
-                zoom: 14,
-                center: latlng,
-                scrollwheel: false,
-                panControl: false,
-                mapTypeControl: false,
-                //streetViewControl: false,
-                zoomControl: true,
-                maxZoom: 17,
-                zoomControlOptions: {
-                    position: google.maps.ControlPosition.LEFT_CENTER,
-                    style: google.maps.ZoomControlStyle.DEFAULT
-                },
-                scaleControl: false,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            };
-            map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
-
-            function LatLngToPixel(map) {
-                this.setMap(map);
-            }
-            LatLngToPixel.prototype = new google.maps.OverlayView();
-            LatLngToPixel.prototype.draw = function () { }
-            latLngToPixel = new LatLngToPixel(map);
-
-            div = document.createElement("div");
-            div.id = "map-left";
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(div);
-
-
-            div = document.createElement("div");
-            div.id = "map-top";
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(div);
-
-            div = document.createElement("div");
-            div.id = "map-bottom";
-            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(div);
-
-            div = document.createElement("div");
-            div.id = "map-right";
-            map.controls[google.maps.ControlPosition.TOP_RIGHT].push(div);
-
-
-
-            google.maps.event.addListener(map, 'click', function (event) {
-                setTimeout(function () {
-                    showCopyRight();
-                }, 300);
-            });
-            google.maps.event.addListener(map, 'mouseup', function (event) {
-                setTimeout(function () {
-                    showCopyRight();
-                }, 300);
-            });
-            google.maps.event.addListener(map, 'zoom_changed', function (event) {
-                setTimeout(function () {
-                    showCopyRight();
-                }, 2000);
-            });
-            initMap();
-        }
-        var showCopyRight = function () {
-            var divs = $("#map-canvas>div>div");
-        }
-	
-        var totalLangs;*/
-        var myPlayer;
-
-        function initPlayerAudio(file) {
-            myPlayer = $('#player');
-            myPlayer.jPlayer({
-                swfPath: baseUrl + 'Scripts/swf',
-                solution: 'html, flash',
-                supplied: 'mp3',
-                preload: 'metadata',
-                volume: 0.8,
-                muted: false,
-                ready: function () {
-                    $(this).jPlayer("setMedia", {
-                        mp3: file
-                    });
-                },
-                timeupdate: function (event) {
-                    $.fn.media.api.observe(Math.round(event.jPlayer.status.currentTime));
-                    if (event.jPlayer.status.duration != 0)
-                        $(".jp-duration").html($.jPlayer.convertTime(event.jPlayer.status.duration));
-                },
-                backgroundColor: '#ffffff',
-                cssSelectorAncestor: '#jp_container',
-                cssSelector: {
-                    videoPlay: '.jp-video-play',
-                    play: '.jp-play',
-                    pause: '.jp-pause',
-                    seekBar: '.jp-seek-bar',
-                    playBar: '.jp-play-bar',
-                    duration: '.hidden-duration',
-                    //volumeBar: '.jp-volume-bar',
-                    //volumeBarValue: '.jp-volume-bar-value',
-                    mute: '.jp-mute',
-                    unmute: '.jp-unmute',
-                    currentTime: '.jp-current-time',
-                    gui: '.jp-gui'
-                },
-                play: function () {
-                    $('.jp-play').removeClass('jp-repeatMe');
-                    //$('.play-preview').remove();
-                    if (typeof $.fn.media.api.json.synced != 'undefined' && $.fn.media.api.json.synced == 'true') {
-                        $.fn.media.api.createPointsOfInterest();
-                    }
-                },
-                ended: function () {
-                    $('.jp-play').addClass('jp-repeatMe');
-                    $('.tourslide-link')[0].append('<span class="play-preview"><span>Preview <em>(Play 10 seconds)</em></span></span>');
-                },
-                errorAlerts: false,
-                warningAlerts: false
-            });
-        }
+		
     </script>
 
-    <script type="text/javascript">
-
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-22671944-1']);
-        _gaq.push(['_setDomainName', 'guidigo.com']);
-        _gaq.push(['_trackPageview']);
-
-    </script>
 </head>
-<body itemscope="" itemtype="http://schema.org/Product" onload="initialize()">
-     <header id="home-header">
-        <div id="header-content">
-            <h1>
-            <a href="/">
-            	<img src="/images/yunyou.png" style="width: 168px"></a>
-            </h1>
-            <nav id="main-nav">
-                <ul class="clearfix">
-                    <li class=""><a href="/browse">观看线路</a></li>
-                    <li class=""><a href="/create">创建线路</a></li>
-                </ul>
-            </nav>
-			<div id="sub-nav">
-				<ul class="subnav-links clearfix">            
-					<li>
-						<a href="/signin" id="signin-nav-btn">登录</a>
-					</li>
-					<li>
-						<a href="/singup" id="signup-nav-btn">注册</a>
-					</li>   
-				</ul>
-			</div>            
-			<div id="subtitle">
-				<ul id="breadcrumbs">
-					<li><a href="/">云游首页</a></li>
-					<li><a href="/browse">观看线路</a></li>
-					<li><a href=""><% line.mapAddress %></a></li>
-					<li><%= title %></li>
-				</ul>
-			</div>
-        </div>
-    </header>
-    <!--！ end #header -->
+<body onload="initialize()">
+<% include header %>
 
-<input id="EncryptTourID" name="EncryptTourID" type="hidden" value="">
-<input data-val="true" data-val-required="The AuthorID field is required." id="AuthorID" name="AuthorID" type="hidden" value="">
+<input id="lineId" name="lineId" type="hidden" value="<%= lineId %>">
+
 <!-- end lightbox-window //-->
 
 <div class="tour-title clearfix">
-		<div class="tour-meta">
-			<h2 id="lineName" name="lineName">
-				<%= line.lineName %></h2>
+	<div class="tour-meta">
+		<h2 id="lineName" name="lineName">
+			<%= line.lineName %></h2>
         <div class="tour-details">
-			<span class="tour-icons">
-				<span class="icon-stops" title="站点数"><%= line.stops.length %> </span>个站点
-				<span class="icon-duration" title="时长"><%= line.duration %></span>分钟
-				<span class="icon-distance" title="距离"><%= line.lineLength %></span>km
-			</span>
-			<span class="td-pricing td-free" title="免费观看"><%= line.price %></span>
+        	<span class="tour-icons">
+                <span class="icon-stops" oldtitle="Tour stop(s)"><%= Object.keys(line.stops).length %>站点</span>
+		<span class="icon-duration" oldtitle="Duration" aria-describedby="ui-tooltip-3"><%= line.duration %> mins</span>
+		<span class="icon-distance" oldtitle="Distance" aria-describedby="ui-tooltip-4"><%= line.lineLength %> km</span>
+            </span>
+			<span class="td-pricing td-free" title="免费观看">免费</span>
 		</div>
     </div>
     <div class="main-rating">
@@ -302,7 +142,8 @@
 <!-- end .tour-title //-->
 <div id="map-container">
 	<div id="tour-main">
-        <div class="tour-player-container" style="z-index=1002; display: none;">
+		<% line.stops.forEach(function(stop, index) { %>
+        <div id="<%= stop.num-1 %>" class="tour-player-container" style="z-index=1002; display: none;">
             <div class="tour-player-inner clearfix">
 				<div class="preview">
                     <a href="javascript:void(0);" class="question ir">更多信息</a>
@@ -315,9 +156,21 @@
                     </div>
                 </div> 
 				<div class="tour-images images-and-player">
-                    <div class="tour-img-slider">
-						<div class="tour-img-slide-item" style="display: inline-block;"><img src="./images/b1.jpg" alt=""></div>
-						<!-- clone div here!!! -->
+					<div class="tour-img-slider">
+							<div class="tour-img-slide-item" style="display: inline-block;">
+								<img src="<%= stop.stopThumbnail %>" style="width: 350px;">
+							</div>
+							<!--这个封面是显示的-->
+															<!--stopImages显示，也可以设timeout来实现img切换
+								  line.stop.stopImages.forEach(function(image, index) { %>
+								<img src="= image %>" style="width: 350px;">
+								}) %>-->	
+							<% stop.stopImages.forEach(function(image, index) { %>	
+							<div class="tour-img-slide-item" style="display: none;">
+						
+								<img src="<%= image %>" style="width: 350px;">
+							</div>
+							<% }) %>
 					</div>
 					<div class="tour-img-thumbs" style="display: block;">
                         <a href="javascript:void(0);" class="tour-img-left ir">prev</a> 
@@ -329,83 +182,134 @@
 							</ul>
                         </div>
                     </div>
-                    <div id="player">
-                    	<!--<img id="jp_poster_0" style="width: 0px; height: 0px; display: none;">
-                    	<audio id="jp_audio_0" preload="metadata" src="/images/audio.mp3"></audio>-->
-                    </div>
-                  <div class="player-container jp-audio" id="jp_container">
-                        <a href="javascript:;" class="playbtn ir jp-play">play</a> 
-                        <a href="javascript:;" class="jp-pause pausebtn ir" style="display: none;">pause</a> 
-                        <span class="play-time jp-current-time">00:00</span> <span class="end-time jp-duration">00:00</span>
-                        <div class="player-bar jp-progress">
-                            <div class="jp-seek-bar" style="width: 100%;">
-                                <div class="player-seeked jp-play-bar">
-                                    <div class="player-pointer">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 
-                        <div class="player-dot" id="dot-0" rel="-1" style="left: -1%;"></div>
-						<div class="player-dot" id="dot-1" rel="3.5602605863192185" style="left: 3.5602605863192185%;"></div>
-						<div class="player-dot" id="dot-2" rel="38.08794788273616" style="left: 38.08794788273616%;"></div>-->
-                    </div>
+                    <div id="jquery_jplayer_1" class="jp-jplayer"></div>
+                  	<div id="jp_container_1" class="jp-audio" style="width: 92%; margin: 10px 10px 10px 10px;">
+						<div class="jp-type-single">
+							<div class="jp-gui jp-interface" style="height: 90px;">
+								<ul class="jp-controls">
+									<li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
+									<li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
+									<li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
+								</ul>
+								<div class="jp-progress" style="width: 55%;">
+									<div class="jp-seek-bar">
+										<div class="jp-play-bar"></div>
+									</div>
+								</div>
+								<div class="jp-volume-bar" style="left: 380px;">
+									<div class="jp-volume-bar-value"></div>
+								</div>
+								<div class="jp-time-holder" style="width: 100%; left: 0px">
+									<div class="jp-current-time"></div>
+									<div class="jp-duration"></div>
+								</div>
+							</div>
+							<div class="jp-title">
+								<ul>
+									<li></li>
+								</ul>
+							</div>
+							<div class="jp-no-solution">
+								<span>Update Required</span>
+								To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
+							</div>
+						</div>
+					</div>
+					<script type="text/javascript">
+						var myPlayer = $("#jquery_jplayer_1").jPlayer({
+							ready: function (event) {
+								$(this).jPlayer("setMedia", {
+									mp3: "<%= stop.stopAudio %>"
+								}).jPlayer();
+							},
+							swfPath: "javascripts",
+							supplied: "mp3",
+							preload: 'auto',
+							wmode: "window"
+						});
+					</script>
                 </div>
                 <!-- end .tour-images //-->
                 
                 <div class="tour-description">
                     <div class="tdesc-inside jspScrollable" style="overflow: hidden; padding: 0px; width: 427px;" tabindex="0">
-                    	<span id="num" name="num" class="tdesc-num">5</span>
-                        <h3 id="stopName" name="stopName">title stopName</h3>
-                        <div class="tdesc-long">
-                            <p id="mapAddress" name="mapAddress" class="tdesc-add">1 Rue Nicolas Flamel, 75004 Paris, France</p>
-                            <p id="stopDes" name="stopDes" class="tdesc-full">C'est précisément ici qu'a habité Nicolas de Flamel, à peu près à l'emplacement du n°1 de cette rue qui porte aujourd'hui son nom. Nicolas de Flamel fait parti des parisiens les plus célèbres du Moyen Age. Son histoire mystérieuse, a passionné de nombreuses générations de parisiens.
-Nicolas de Flamel n'était pas un simple libraire-enlumineur, il s'intéressait aux sciences mystérieuses et plus particulièrement à l'alchimie. Un soir de janvier 1382, dans cette maison, Flamel serait parvenu à transmuer le mercure en or.
-C'est en effet à partir des années 1380 que Nicolas de Flamel réalise des dépenses importantes. Il fait construire à ses frais une arcade du charnier des Innocents et fait décorer le petit portail de Saint-Jacques de la Boucherie, puis le portail de Sainte-Geneviève-des Ardents. Il fait aussi batir au 51 de la rue Montmorency la maison dite du Grand Pignon. 
-Après la mort de Nicolas de Flamel en 1417, nombreux furent ceux qui tentèrent de percer son secret. 
-</p>
-                        </div>
+				    <span id="num" name="num" class="tdesc-num"><%= stop.num%></span>
+				    <h3 id="stopName" name="stopName"><%= stop.stopName%></h3>
+	                <div class="tdesc-long">
+						<p id="mapAddress" name="mapAddress" class="tdesc-add"><%= line.mapAddress %></p>
+						<p id="stopDes" name="stopDes" class="tdesc-full"><%= stop.stopDes %></p>
+                    </div>
                     </div>
                     <a href="javascript:void(0);" class="closetour ir">close tour</a>
                 </div>
                 <!-- end .tour-description //-->
             </div>
             <!-- end .tour-player-inner //-->
-        </div>
+	    </div>
+	    <% }) %>
         <!-- end .tour-player-container //-->
+        
         <input type="hidden" id="isCustom" value="False">
         <input id="WithRoute" name="WithRoute" data-val="true" data-val-required="The WithRoute field is required." type="hidden" value="True">
-
-            <div class="tourslide tourbg-main ">
-                <div class="tourslide-images" id="tour-slideshow">
-
-                    <div class="tourslide-link">
-                        <img src="./images/b1.jpg" alt="" width="350">
-                        <span class="paper-note">
-                        	<p class="ellipsis" style="height:70px"><div>
-                        		<span>shortDesc</span></div></p></span><!--shortDesc-->
-                        <a href="" class="ts-show-container" style="">
-                            <span class="ts-show">Sample</span>
-                        </a>
-                        <span class="ts-title">
-                            <span class="tt-count">5</span><!--stop.num-->
-                            <p class="tt-name">Nicolas de Flamel </p><!--title-->
-                        </span>
-                    </div>
+        
+       	<% line.stops.forEach(function(stop, index) { %> 
+        <div rel="<%= stop.num %>" class="tourslide tourbg-main">
+            <div class="tourslide-images" id="tour-slideshow">
+               	<div class="tourslide-link" >
+			    <img src="<%= stop.stopThumbnail %>" style="width: 350px; height: 350px">
+                <a href="javascript:void(0);" class="ts-show-container" >
+                    <span class="ts-show">Sample</span>
+                </a>
+                <span class="ts-title">
+					<span class="tt-count"><%= stop.num %></span><!--stop.num-->
+					<p class="tt-name"><%= stop.stopName %></p><!--title-->
+				</span>
                 </div>
             </div>
+        </div>
+        <% }) %>
+		<!--删去了每个ｓｔｏｐ都foreach, detail.js里面改了-->
 
         <!-- end .tourbg-main //-->
     </div>
     <!-- end #tour-main //-->
-
+	<script type="text/javascript">
+	var indexImg = 0;
+	function showSlide() {
+		var howmany = $("#"+no).find(".tour-img-slide-item").length;
+		$("#"+no).find(".tour-img-slide-item").attr("style", "display:none;");
+		$("#"+no).find(".tour-img-slide-item:eq("+ indexImg +")").attr("style", "display:inline-block;");
+		console.log(howmany+indexImg);
+		indexImg++;
+		if(indexImg>=howmany) {indexImg=0;}		
+	}
+	var timer;
+	
+	$(document).ready(function(){
+		$(".tourslide-link").live("click",function() {
+	        return $(".ts-show-container .ts-show").is(":visible") && ($(".tour-player-container:eq("+no+")").slideDown(),
+	        timer=setInterval("showSlide()", 3000), 
+	        $(".tdesc-inside").jScrollPane(), 
+	        $(".tdesc-inside").data("jsp").scrollTo(0, 0), 
+	        $.fn.media.api.calculateMiniMargin("right")),
+	        !1
+	    }),
+	    $(".closetour").live("click",
+	    function() {
+	        return $(".tour-player-container").slideUp(),
+	        clearInterval(timer),
+	        myPlayer && myPlayer.jPlayer("stop"),
+	        !1
+	    })
+	});
+</script>
 	<div class="map">
             <div id="map-canvas" style="width: 100%; height: 490px; position: relative; background-color: rgb(229, 227, 223); overflow: hidden; -webkit-transform: translateZ(0);">
     </div></div>
 	<!-- end #map //-->
 <div id="tour-maininfo" class="clearfix">
     <div id="tour-info">
-        <h4>站点 (<span></span>)</h4>
+        <h4>站点 (<span><%= Object.keys(line.stops).length %></span>)</h4>
         <div class="tour-thumbs-container clearfix thumbs-clipped thumbs-start">
             <div id="tt-controls">
                     <a href="javascript:void(0);" class="tt-prev ir tt-disabled">previous</a> 
@@ -413,115 +317,72 @@ Après la mort de Nicolas de Flamel en 1417, nombreux furent ceux qui tentèrent
             </div>
             <div class="tour-thumbs" style="overflow: hidden;">
                 <ul style="margin-left: 0px;">
+                	<!--foreach-->
+                    
+	            <% line.stops.forEach(function(stop, index) { %>	
                     <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
+					    <a href="javascript:void(0);" rel="<%= stop.num%>" title="<%= stop.stopName %>" >
+						    <span><%= stop.num %></span>
+						    <img src="<%= stop.stopThumbnail %>" >
+	                    </a>
                     </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" rel="" title="Introduction">
-                            <span>1</span>
-                            <img src="./images/a1.jpg">
-                        </a>
-                    </li>                
+                    <% }) %>		
                 </ul>
             </div>
+            <script type="text/javascript" >
+            	var no=<%= Object.keys(line.stops).length %>-1;
+            	$(document).ready(function(){
+            		$(".tour-thumbs ul li a").each(function(){
+            			$(this).bind("click", function(){
+            				no = $(this).find("span").html()-1;
+            				console.log(no);
+            				$(".tourslide").hide();
+            				$(".tourslide:eq(" + no + ")").show();
+            			// var img=$(this).find("img").attr("src");
+            			// var num=$(this).find("span").html();
+            			// var name=$(this).attr("oldtitle");
+            			// $(".tourslide-link img").attr("src", img);
+            			// $(".tt-count").html(num);
+            			// $(".tt-name").html(name);
+            		});
+            	});
+            });
+            </script>
         </div>
         <!-- end .tour-thumbs-container //-->
         <p class="tour-maindesc">
-           <!--lineSummary-->
+			<%= line.lineSummary %>
         </p>        
     </div>
     <!-- end #tour-ratings //-->
-    <aside id="tour-aside">
+  <aside id="tour-aside">
         <div class="tour-author">
             <h5>作者简介</h5>
             <div class="clearfix">
                 <div class="author-pic">
-			<a href="">
-				
-				<img src=<%= line.authorImage %> width=100 height=100 alt="">
+                    <a href="">
+			    <img src=<%= line.authorImage %> width=100 height=100 alt="">
                     </a>
                 </div>
                 <div class="author-name an-blue">
                     <a href="">
-			    <span><%= user.userName %></span><!--author-->
+                        <span><%= line.author %></span><!--author-->
                         <div style="color:#66aa9f">
-				<%= user.authorType %>
-                        </div>
+                            <%= line.authorType %>
                     </a>
                 </div>
             </div>
             <div class="author-prez" style="padding-bottom: 30px">
             <div class="summary">
-            <p><%= user.userShort %><span class="read-more">… <a href="javascript:void(0);">Plus...</a></span></p></div>
-<div class="details" style="display: none;"><p><%= user.userShort %></p><span class="read-less"> 
-<a href="javascript:void(0);">Read less</a></span></div></div>
+            <p><%= line.authorBio %></p></div></div>
             
         </div>
         <!-- end .tour-author //-->
 
-        <script type="text/javascript">
-            $(function () {
-                $('.author-prez').expander({
-                    slicePoint: 200,
-                    expandText: strReadMore,
-                    userCollapseText: strReadLess,
-                    expandEffect: 'slideDown',
-                    expandSpeed: 300,
-                    collapseEffect: 'slideUp',
-                    collapseSpeed: 250
-                });
-
-            });
-        </script>
     </aside>
 </div>
 
 
+
 </body>
 </html>
-
